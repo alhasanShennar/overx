@@ -1,0 +1,151 @@
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The Laravel Framework.",
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "3neef/laravel-nationalities": "^1.0",
+        "afatmustafa/blade-hugeicons": "^1.0",
+        "alperenersoy/filament-export": "^3.0",
+        "althinect/filament-spatie-roles-permissions": "^2.3",
+        "andreiio/blade-iconoir": "^4.6",
+        "arbermustafa/filament-locationpickr-field": "^2.0.0",
+        "arielmejiadev/filament-printable": "^2.2",
+        "asmit/filament-upload": "^1.0",
+        "astrotomic/laravel-translatable": "^11.16",
+        "awcodes/filament-quick-create": "^3.6",
+        "awcodes/light-switch": "^1.0",
+        "awcodes/overlook": "^2.2",
+        "barryvdh/laravel-dompdf": "^2.2",
+        "blade-ui-kit/blade-heroicons": "^2.4",
+        "blade-ui-kit/blade-ui-kit": "^0.6.2",
+        "blade-ui-kit/blade-zondicons": "^1.6",
+        "charrafimed/global-search-modal": "^3.7",
+        "codeat3/blade-clarity-icons": "^1.10",
+        "codeat3/blade-eos-icons": "^1.15",
+        "codeat3/blade-fluentui-system-icons": "^1.33",
+        "codeat3/blade-google-material-design-icons": "^1.20",
+        "codeat3/blade-humbleicons": "^1.1",
+        "codeat3/blade-line-awesome-icons": "^1.5",
+        "codeat3/blade-maki-icons": "^1.9",
+        "codeat3/blade-solar-icons": "^1.2",
+        "codeat3/blade-teeny-icons": "^1.11",
+        "codeat3/blade-vaadin-icons": "^1.6",
+        "coolsam/flatpickr": "^4.1",
+        "devonab/filament-easy-footer": "*",
+        "eduard9969/blade-polaris-icons": "^2.8",
+        "faisal50x/blade-ionicons": "^1.1",
+        "filafly/filament-font-awesome-icons": "^1.0",
+        "filament/actions": "^3.2",
+        "filament/filament": "^3.3",
+        "filament/spatie-laravel-google-fonts-plugin": "^3.2",
+        "filament/spatie-laravel-translatable-plugin": "^3.2",
+        "guzzlehttp/guzzle": "^7.2",
+        "hasnayeen/themes": "^3.0",
+        "ibrahim-bougaoua/filaprogress": "*",
+        "jaocero/activity-timeline": "^1.2",
+        "jaocero/radio-deck": "^1.2",
+        "jeffgreco13/filament-breezy": "^2.6",
+        "joaopaulolndev/filament-edit-profile": "^1.0",
+        "joaopaulolndev/filament-pdf-viewer": "*",
+        "khatabwedaa/blade-css-icons": "^1.5",
+        "kreait/firebase-php": "^7.20",
+        "lara-zeus/popover": "*",
+        "laravel/framework": "^10.10",
+        "laravel/sanctum": "^3.3",
+        "laravel/socialite": "^5.24",
+        "laravel/tinker": "^2.8",
+        "laravel/ui": "^4.6",
+        "leandrocfe/filament-apex-charts": "^3.1",
+        "livewire/livewire": "^3.5",
+        "lwwcas/laravel-countries": "^3.5",
+        "maatwebsite/excel": "^3.1",
+        "mallardduck/blade-boxicons": "^2.4",
+        "malzariey/filament-daterangepicker-filter": "^3.4",
+        "mansoor/blade-lets-icons": "^1.0",
+        "mckenziearts/blade-untitledui-icons": "^1.4",
+        "njxqlus/filament-progressbar": "^1.0",
+        "oriondevelops/filament-greeter": "*",
+        "owenvoke/blade-fontawesome": "^2.9",
+        "phpoffice/phppresentation": "^1.2",
+        "postare/blade-mdi": "^1.1",
+        "promethys/revive": "^1.0",
+        "pxlrbt/filament-excel": "^2.4",
+        "saade/blade-iconsax": "^1.2",
+        "schmeits/filament-umami-widgets": "*",
+        "secondnetwork/blade-tabler-icons": "^3.34",
+        "sendgrid/sendgrid": "^8.1",
+        "spatie/image": "^3.8",
+        "spatie/laravel-activitylog": "^4.10",
+        "spatie/laravel-permission": "^6.25",
+        "tapp/filament-authentication-log": "^3.1",
+        "tapp/filament-value-range-filter": "^2.0",
+        "tomatophp/filament-alerts": "^2.2",
+        "tomatophp/filament-browser": "*",
+        "torgodly/html2media": "^1.1",
+        "ysfkaya/filament-phone-input": "^3.2"
+    },
+    "require-dev": {
+        "doctrine/dbal": "^3.8",
+        "fakerphp/faker": "^1.9.1",
+        "laravel/breeze": "^1.29",
+        "laravel/pint": "^1.0",
+        "laravel/sail": "^1.18",
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/collision": "^7.0",
+        "phpunit/phpunit": "^10.1",
+        "spatie/laravel-ignition": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "10.x-dev"
+        },
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
