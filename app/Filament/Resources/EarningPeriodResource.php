@@ -23,6 +23,7 @@ class EarningPeriodResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Mining';
     protected static ?int $navigationSort = 2;
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationLabel = 'Earning Periods';
 
     public static function form(Form $form): Form
@@ -38,7 +39,6 @@ class EarningPeriodResource extends Resource
                 ->afterStateUpdated(function (Set $set, $state): void {
                     if (blank($state)) {
                         $set('end_date', null);
-
                         return;
                     }
 
@@ -143,27 +143,39 @@ class EarningPeriodResource extends Resource
                         Forms\Components\Textarea::make('notes')->nullable(),
                     ])
                     ->action(function (EarningPeriod $record, array $data) {
-                        $transaction = $record->transactions()
-                            ->where('type', 'cashout')
-                            ->where('status', 'pending')
-                            ->latest()
-                            ->first();
+                        app(EarningPeriodService::class)->approveCashout($record, $data);
+                        Notification::make()->title('Cashout processed successfully.')->success()->send();
+                    }),
 
-                        if (! $transaction) {
-                            // Admin-initiated cashout (no prior client request)
-                            $transaction = Transaction::create([
-                                'client_id' => $record->client_id,
-                                'earning_period_id' => $record->id,
-                                'type' => Transaction::TYPE_CASHOUT,
-                                'btc_amount' => $record->total_btc_earned,
-                                'fiat_amount' => $record->total_revenue,
-                                'status' => Transaction::STATUS_PENDING,
-                                'requested_by' => 'admin',
-                                'requested_at' => now(),
-                            ]);
-                        }
-
-                        app(EarningPeriodService::class)->processCashout($transaction, $data);
+                // Admin-initiated cashout (completed period, no client request)
+                Tables\Actions\Action::make('process_cashout')
+                    ->label('Process Cashout')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('success')
+                    ->visible(
+                        fn(EarningPeriod $record) =>
+                        in_array($record->status, [EarningPeriod::STATUS_COMPLETED]) && ! $record->is_locked
+                    )
+                    ->form([
+                        Forms\Components\Select::make('cashout_details_id')
+                            ->label('Cashout Method')
+                            ->options(function (EarningPeriod $record) {
+                                return $record->client->cashoutDetails()
+                                    ->get()
+                                    ->mapWithKeys(fn($d) => [$d->id => ($d->label ?: $d->type) . ' — ' . ($d->crypto_wallet_address ?? $d->bank_name ?? '')]);
+                            })
+                            ->nullable(),
+                        Forms\Components\DatePicker::make('date')->default(today())->required(),
+                        Forms\Components\TextInput::make('amount')
+                            ->numeric()->prefix('$')
+                            ->helperText('Leave blank to use period total revenue.')
+                            ->nullable(),
+                        Forms\Components\FileUpload::make('receipt')
+                            ->directory('cashout-receipts')->nullable(),
+                        Forms\Components\Textarea::make('notes')->nullable(),
+                    ])
+                    ->action(function (EarningPeriod $record, array $data) {
+                        app(EarningPeriodService::class)->approveCashout($record, $data);
                         Notification::make()->title('Cashout processed successfully.')->success()->send();
                     }),
 
@@ -181,26 +193,24 @@ class EarningPeriodResource extends Resource
                         Forms\Components\Textarea::make('notes')->nullable(),
                     ])
                     ->action(function (EarningPeriod $record, array $data) {
-                        $transaction = $record->transactions()
-                            ->where('type', 'store')
-                            ->where('status', 'pending')
-                            ->latest()
-                            ->first();
+                        app(EarningPeriodService::class)->approveStore($record, $data);
+                        Notification::make()->title('Store processed successfully.')->success()->send();
+                    }),
 
-                        if (! $transaction) {
-                            $transaction = Transaction::create([
-                                'client_id' => $record->client_id,
-                                'earning_period_id' => $record->id,
-                                'type' => Transaction::TYPE_STORE,
-                                'btc_amount' => $record->total_btc_earned,
-                                'fiat_amount' => $record->total_revenue,
-                                'status' => Transaction::STATUS_PENDING,
-                                'requested_by' => 'admin',
-                                'requested_at' => now(),
-                            ]);
-                        }
-
-                        app(EarningPeriodService::class)->processStore($transaction, $data);
+                // Admin-initiated store (completed period, no client request)
+                Tables\Actions\Action::make('process_store')
+                    ->label('Process Store')
+                    ->icon('heroicon-o-archive-box')
+                    ->color('info')
+                    ->visible(
+                        fn(EarningPeriod $record) =>
+                        in_array($record->status, [EarningPeriod::STATUS_COMPLETED]) && ! $record->is_locked
+                    )
+                    ->form([
+                        Forms\Components\Textarea::make('notes')->nullable(),
+                    ])
+                    ->action(function (EarningPeriod $record, array $data) {
+                        app(EarningPeriodService::class)->approveStore($record, $data);
                         Notification::make()->title('Store processed successfully.')->success()->send();
                     }),
 
@@ -219,19 +229,7 @@ class EarningPeriodResource extends Resource
                     ])
                     ->requiresConfirmation()
                     ->action(function (EarningPeriod $record, array $data) {
-                        $transaction = $record->transactions()
-                            ->where('status', 'pending')
-                            ->latest()
-                            ->first();
-
-                        if ($transaction) {
-                            app(EarningPeriodService::class)->rejectRequest($transaction, $data['notes'] ?? '');
-                        } else {
-                            $record->update([
-                                'status' => EarningPeriod::STATUS_REJECTED,
-                                'processed_at' => now(),
-                            ]);
-                        }
+                        app(EarningPeriodService::class)->rejectPeriodRequest($record, $data['notes'] ?? '');
                         Notification::make()->title('Request rejected.')->warning()->send();
                     }),
             ])

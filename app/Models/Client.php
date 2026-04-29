@@ -12,8 +12,6 @@ class Client extends Model
         'user_id',
         'phone',
         'passport',
-        'current_storing_machines',
-        'current_cashout_machines',
     ];
 
     public function user(): BelongsTo
@@ -54,6 +52,22 @@ class Client extends Model
     public function storedEarnings(): HasMany
     {
         return $this->hasMany(StoredEarning::class);
+    }
+
+    public function getCurrentStoringMachinesAttribute(): int
+    {
+        if ($this->relationLoaded('contracts')) {
+            return (int) $this->contracts->sum('storing_machines_no');
+        }
+        return (int) $this->contracts()->sum('storing_machines_no');
+    }
+
+    public function getCurrentCashoutMachinesAttribute(): int
+    {
+        if ($this->relationLoaded('contracts')) {
+            return (int) $this->contracts->sum('cashout_machines_no');
+        }
+        return (int) $this->contracts()->sum('cashout_machines_no');
     }
 
     public function getTotalMachinesAttribute(): int

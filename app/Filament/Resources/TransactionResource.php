@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Client;
 use App\Models\Transaction;
-use App\Services\EarningPeriodService;
+use App\Services\CashoutService;
+use App\Services\StoredEarningService;
+use App\Services\TransactionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -100,7 +102,7 @@ class TransactionResource extends Resource
                         Forms\Components\Textarea::make('notes')->nullable(),
                     ])
                     ->action(function (Transaction $record, array $data) {
-                        app(EarningPeriodService::class)->processCashout($record, $data);
+                        app(CashoutService::class)->process($record, $data);
                         Notification::make()->title('Cashout processed.')->success()->send();
                     }),
 
@@ -116,7 +118,7 @@ class TransactionResource extends Resource
                         Forms\Components\Textarea::make('notes')->nullable(),
                     ])
                     ->action(function (Transaction $record, array $data) {
-                        app(EarningPeriodService::class)->processStore($record, $data);
+                        app(StoredEarningService::class)->process($record, $data);
                         Notification::make()->title('Store processed.')->success()->send();
                     }),
 
@@ -130,7 +132,7 @@ class TransactionResource extends Resource
                     ])
                     ->requiresConfirmation()
                     ->action(function (Transaction $record, array $data) {
-                        app(EarningPeriodService::class)->rejectRequest($record, $data['notes'] ?? '');
+                        app(TransactionService::class)->reject($record, $data['notes'] ?? '');
                         Notification::make()->title('Transaction rejected.')->warning()->send();
                     }),
             ]);

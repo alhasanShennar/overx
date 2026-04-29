@@ -19,7 +19,7 @@ class AdminStatsOverviewWidget extends BaseWidget
     protected function getStats(): array
     {
         $totalClients = Client::count();
-        $totalMachines = Client::selectRaw('SUM(current_storing_machines + current_cashout_machines) as total')->value('total') ?? 0;
+        $totalMachines = \App\Models\Contract::sum('storing_machines_no') + \App\Models\Contract::sum('cashout_machines_no');
         $totalBtc = Earning::sum('btc_earned');
         $totalRevenue = Earning::sum('revenue');
         $pendingPeriods = EarningPeriod::where('status', EarningPeriod::STATUS_COMPLETED)->count();

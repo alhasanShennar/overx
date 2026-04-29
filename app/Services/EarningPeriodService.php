@@ -248,4 +248,80 @@ class EarningPeriodService
             ]);
         });
     }
+
+    /**
+     * Admin approves cashout for a period (finds or creates pending transaction first).
+     */
+    public function approveCashout(EarningPeriod $period, array $data): Cashout
+    {
+        $transaction = $period->transactions()
+            ->where('type', Transaction::TYPE_CASHOUT)
+            ->where('status', Transaction::STATUS_PENDING)
+            ->latest()
+            ->first();
+
+        if (! $transaction) {
+            $transaction = Transaction::create([
+                'client_id'         => $period->client_id,
+                'earning_period_id' => $period->id,
+                'type'              => Transaction::TYPE_CASHOUT,
+                'btc_amount'        => $period->total_btc_earned,
+                'fiat_amount'       => $period->total_revenue,
+                'status'            => Transaction::STATUS_PENDING,
+                'requested_by'      => 'admin',
+                'requested_at'      => now(),
+            ]);
+        }
+
+        return $this->processCashout($transaction, $data);
+    }
+
+    /**
+     * Admin approves store for a period (finds or creates pending transaction first).
+     */
+    public function approveStore(EarningPeriod $period, array $data = []): StoredEarning
+    {
+        $transaction = $period->transactions()
+            ->where('type', Transaction::TYPE_STORE)
+            ->where('status', Transaction::STATUS_PENDING)
+            ->latest()
+            ->first();
+
+        if (! $transaction) {
+            $transaction = Transaction::create([
+                'client_id'         => $period->client_id,
+                'earning_period_id' => $period->id,
+                'type'              => Transaction::TYPE_STORE,
+                'btc_amount'        => $period->total_btc_earned,
+                'fiat_amount'       => $period->total_revenue,
+                'status'            => Transaction::STATUS_PENDING,
+                'requested_by'      => 'admin',
+                'requested_at'      => now(),
+            ]);
+        }
+
+        return $this->processStore($transaction, $data);
+    }
+
+    /**
+     * Admin rejects a period's pending request (by period, not transaction).
+     */
+    public function rejectPeriodRequest(EarningPeriod $period, string $notes = ''): void
+    {
+        $transaction = $period->transactions()
+            ->where('status', Transaction::STATUS_PENDING)
+            ->latest()
+            ->first();
+
+        if ($transaction) {
+            $this->rejectRequest($transaction, $notes);
+        } else {
+            $period->update([
+                'status'          => EarningPeriod::STATUS_REJECTED,
+                'processed_at'    => now(),
+                'client_decision' => null,
+                'requested_at'    => null,
+            ]);
+        }
+    }
 }

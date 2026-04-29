@@ -15,17 +15,40 @@ class EarningsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
+        $clientId = $this->getOwnerRecord()->id;
+
         return $form->schema([
+            Forms\Components\DatePicker::make('date')
+                ->required()
+                ->default(today())
+                ->live()
+                ->afterStateUpdated(function ($state, Forms\Set $set) use ($clientId) {
+                    if (! $state) return;
+                    $period = EarningPeriod::where('client_id', $clientId)
+                        ->whereDate('start_date', '<=', $state)
+                        ->whereDate('end_date', '>=', $state)
+                        ->first();
+                    $set('earning_period_id', $period?->id);
+                }),
             Forms\Components\Select::make('earning_period_id')
                 ->label('Earning Period')
-                ->options(function (RelationManager $livewire) {
-                    return EarningPeriod::where('client_id', $livewire->getOwnerRecord()->id)
+                ->options(
+                    EarningPeriod::where('client_id', $clientId)
+                        ->orderBy('start_date')
                         ->get()
-                        ->mapWithKeys(fn($p) => [$p->id => $p->start_date->format('Y-m-d') . ' → ' . $p->end_date->format('Y-m-d')]);
-                })
+                        ->mapWithKeys(fn($p) => [
+                            $p->id => $p->start_date->format('M d, Y') . ' → ' . $p->end_date->format('M d, Y') . ' [' . $p->status . ']'
+                        ])
+                )
+                ->default(
+                    EarningPeriod::where('client_id', $clientId)
+                        ->whereDate('start_date', '<=', today())
+                        ->whereDate('end_date', '>=', today())
+                        ->value('id')
+                )
                 ->required()
-                ->searchable(),
-            Forms\Components\DatePicker::make('date')->required(),
+                ->searchable()
+                ->helperText('Auto-selected based on date'),
             Forms\Components\TextInput::make('btc_earned')
                 ->numeric()->required()->step('0.00000001')
                 ->live(onBlur: true)
