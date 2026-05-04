@@ -32,15 +32,15 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
+            ->pages([])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
                 \App\Filament\Widgets\AdminStatsOverviewWidget::class,
                 \App\Filament\Widgets\PendingRequestsWidget::class,
+                \App\Filament\Widgets\ExpiringPeriodsWidget::class,
                 \App\Filament\Widgets\RecentCashoutsWidget::class,
+                \App\Filament\Widgets\LatestClientsWidget::class,
+                \App\Filament\Widgets\LatestEarningPeriodsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
