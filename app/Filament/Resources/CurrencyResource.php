@@ -21,7 +21,9 @@ class CurrencyResource extends Resource
     {
         return $form->schema([
             Forms\Components\TextInput::make('code')
-                ->required()->maxLength(10)->upperCase(),
+                ->required()->maxLength(10)
+                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                ->dehydrateStateUsing(fn ($state) => strtoupper($state)),
             Forms\Components\TextInput::make('name')
                 ->required()->maxLength(100),
             Forms\Components\TextInput::make('symbol')
