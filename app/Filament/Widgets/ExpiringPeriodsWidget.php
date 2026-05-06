@@ -12,7 +12,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class ExpiringPeriodsWidget extends BaseWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 10;
     protected int|string|array $columnSpan = 1;
     protected static ?string $heading = 'Periods Ending Within 7 Days';
 

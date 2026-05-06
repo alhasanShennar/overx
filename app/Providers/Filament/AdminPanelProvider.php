@@ -36,6 +36,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\AdminStatsOverviewWidget::class,
+                \App\Filament\Widgets\RevenueChartWidget::class,
+                \App\Filament\Widgets\BtcEarnedChartWidget::class,
+                \App\Filament\Widgets\AvgBtcPriceChartWidget::class,
+                \App\Filament\Widgets\RevenuePerClientChartWidget::class,
+                \App\Filament\Widgets\PeriodStatusChartWidget::class,
+                \App\Filament\Widgets\CashoutVsStoredChartWidget::class,
                 \App\Filament\Widgets\PendingRequestsWidget::class,
                 \App\Filament\Widgets\ExpiringPeriodsWidget::class,
                 \App\Filament\Widgets\RecentCashoutsWidget::class,

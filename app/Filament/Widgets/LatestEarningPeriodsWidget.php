@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestEarningPeriodsWidget extends BaseWidget
 {
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 13;
     protected int|string|array $columnSpan = 1;
     protected static ?string $heading = 'Latest Earning Periods';
 

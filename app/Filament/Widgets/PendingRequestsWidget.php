@@ -12,7 +12,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class PendingRequestsWidget extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 9;
     protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = 'Pending Client Requests';
 

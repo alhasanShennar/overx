@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class RecentCashoutsWidget extends BaseWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 11;
     protected int|string|array $columnSpan = 1;
     protected static ?string $heading = 'Recent Cashouts';
 
