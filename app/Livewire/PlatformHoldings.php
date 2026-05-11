@@ -45,6 +45,13 @@ class PlatformHoldings extends Component
 
         $this->fillFromRecord($record->fresh());
         $this->isEditing = false;
+
+        $this->dispatch('holdings-updated', [
+            'btcUnit'  => (float) $this->btcUnit,
+            'btcValue' => (float) $this->btcValue,
+            'ethUnit'  => (float) $this->ethUnit,
+            'ethValue' => (float) $this->ethValue,
+        ]);
     }
 
     public function cancel(): void

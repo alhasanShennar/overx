@@ -284,13 +284,19 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
 (function () {
+    var chartInstances = {};
+
     function makeDoughnut(id, val1, val2, color1, color2) {
+        // Destroy existing instance if any
+        if (chartInstances[id]) {
+            chartInstances[id].destroy();
+            delete chartInstances[id];
+        }
         var el = document.getElementById(id);
         if (!el) return;
-        // Set canvas to its container size before init
         el.width  = el.parentElement.offsetWidth;
         el.height = el.parentElement.offsetHeight;
-        new Chart(el, {
+        chartInstances[id] = new Chart(el, {
             type: 'doughnut',
             data: {
                 datasets: [{
@@ -321,20 +327,53 @@
         });
     }
 
+    function drawCharts(btcU, ethU, btcV, ethV) {
+        makeDoughnut('chartHoldingUnits', btcU, ethU, '#f59e0b', '#8b5cf6');
+        makeDoughnut('chartHoldingValue', btcV, ethV, '#3b82f6', '#a78bfa');
+    }
+
     function init() {
         var u = document.getElementById('chartHoldingUnits');
         var v = document.getElementById('chartHoldingValue');
-        if (u) makeDoughnut('chartHoldingUnits',
-            parseFloat(u.dataset.btc), parseFloat(u.dataset.eth),
-            '#f59e0b', '#8b5cf6');
-        if (v) makeDoughnut('chartHoldingValue',
-            parseFloat(v.dataset.btc), parseFloat(v.dataset.eth),
-            '#3b82f6', '#a78bfa');
+        if (u && v) {
+            drawCharts(
+                parseFloat(u.dataset.btc), parseFloat(u.dataset.eth),
+                parseFloat(v.dataset.btc), parseFloat(v.dataset.eth)
+            );
+        }
     }
 
     document.readyState === 'loading'
         ? document.addEventListener('DOMContentLoaded', init)
         : init();
+
+    // Listen for Livewire event after save
+    document.addEventListener('holdings-updated', function (e) {
+        var d = e.detail[0] || e.detail;
+        drawCharts(
+            parseFloat(d.btcUnit),  parseFloat(d.ethUnit),
+            parseFloat(d.btcValue), parseFloat(d.ethValue)
+        );
+
+        // Update center labels
+        var totalUnits = parseFloat(d.btcUnit) + parseFloat(d.ethUnit);
+        var totalValue = parseFloat(d.btcValue) + parseFloat(d.ethValue);
+
+        var centerU = document.querySelector('#chartHoldingUnits')
+            ?.closest('.relative')?.querySelector('span:last-child');
+        var centerV = document.querySelector('#chartHoldingValue')
+            ?.closest('.relative')?.querySelector('span:last-child');
+
+        if (centerU) centerU.textContent = totalUnits.toLocaleString(undefined, {maximumFractionDigits:2});
+        if (centerV) {
+            var fmt = totalValue >= 1000000
+                ? '$' + (totalValue/1000000).toFixed(1) + 'M'
+                : totalValue >= 1000
+                    ? '$' + (totalValue/1000).toFixed(1) + 'K'
+                    : '$' + totalValue.toFixed(2);
+            centerV.textContent = fmt;
+        }
+    });
 })();
 </script>
 @endpush
