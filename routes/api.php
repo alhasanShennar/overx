@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/earning-periods/chart', [EarningPeriodController::class, 'chart']);
         Route::get('/earning-periods', [EarningPeriodController::class, 'index']);
         Route::get('/earning-periods/{earning_period}', [EarningPeriodController::class, 'show']);
+        Route::get('/earning-periods/{earning_period}/chart', [EarningPeriodController::class, 'periodChart']);
         Route::post('/earning-periods/{earning_period}/request-cashout', [EarningPeriodController::class, 'requestCashout']);
         Route::post('/earning-periods/{earning_period}/request-store', [EarningPeriodController::class, 'requestStore']);
 

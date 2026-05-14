@@ -152,4 +152,140 @@ class EarningPeriodController extends Controller
             201
         );
     }
+
+    public function periodChart(Request $request, EarningPeriod $earningPeriod): JsonResponse
+    {
+        $client = $request->user()->client;
+
+        if (! $client || $client->id !== $earningPeriod->client_id) {
+            return $this->error(null, 'Not found.', 404);
+        }
+
+        $earningPeriod->load([
+            'earnings:id,earning_period_id,date,btc_earned,btc_price,revenue,additional_notes',
+            'transactions' => fn ($q) => $q->with(['cashout.cashoutDetail', 'storedEarning'])->latest(),
+            'storedEarning',
+        ]);
+
+        // Daily earnings sorted by date
+        $dailyEarnings = $earningPeriod->earnings
+            ->sortBy('date')
+            ->map(fn ($e) => [
+                'date'             => $e->date?->format('Y-m-d'),
+                'btc_earned'       => (float) $e->btc_earned,
+                'btc_price'        => (float) $e->btc_price,
+                'revenue'          => (float) $e->revenue,
+                'additional_notes' => $e->additional_notes,
+            ])->values();
+
+        // Chart series: cumulative BTC and revenue per day
+        $cumulativeBtc     = 0;
+        $cumulativeRevenue = 0;
+        $cumulative = $dailyEarnings->map(function ($day) use (&$cumulativeBtc, &$cumulativeRevenue) {
+            $cumulativeBtc     += $day['btc_earned'];
+            $cumulativeRevenue += $day['revenue'];
+            return [
+                'date'               => $day['date'],
+                'cumulative_btc'     => round($cumulativeBtc, 8),
+                'cumulative_revenue' => round($cumulativeRevenue, 2),
+            ];
+        });
+
+        // All transactions on this period
+        $transactions = $earningPeriod->transactions->map(function ($tx) {
+            $cashout = null;
+            if ($tx->cashout) {
+                $cashout = [
+                    'id'              => $tx->cashout->id,
+                    'amount'          => (float) $tx->cashout->amount,
+                    'btc_amount'      => (float) $tx->cashout->btc_amount,
+                    'date'            => $tx->cashout->date?->format('Y-m-d'),
+                    'status'          => $tx->cashout->status,
+                    'receipt'         => $tx->cashout->receipt,
+                    'notes'           => $tx->cashout->notes,
+                    'cashout_details' => $tx->cashout->cashoutDetail ? [
+                        'id'     => $tx->cashout->cashoutDetail->id,
+                        'method' => $tx->cashout->cashoutDetail->method ?? null,
+                        'info'   => $tx->cashout->cashoutDetail->info ?? null,
+                    ] : null,
+                ];
+            }
+
+            $stored = null;
+            if ($tx->storedEarning) {
+                $stored = [
+                    'id'             => $tx->storedEarning->id,
+                    'btc_amount'     => (float) $tx->storedEarning->btc_amount,
+                    'revenue_amount' => (float) $tx->storedEarning->revenue_amount,
+                    'stored_at'      => $tx->storedEarning->stored_at?->format('Y-m-d H:i:s'),
+                    'notes'          => $tx->storedEarning->notes,
+                ];
+            }
+
+            return [
+                'id'           => $tx->id,
+                'type'         => $tx->type,
+                'btc_amount'   => (float) $tx->btc_amount,
+                'fiat_amount'  => (float) $tx->fiat_amount,
+                'status'       => $tx->status,
+                'requested_by' => $tx->requested_by,
+                'requested_at' => $tx->requested_at?->format('Y-m-d H:i:s'),
+                'processed_at' => $tx->processed_at?->format('Y-m-d H:i:s'),
+                'notes'        => $tx->notes,
+                'cashout'      => $cashout,
+                'stored'       => $stored,
+            ];
+        });
+
+        // Stored earning directly on period
+        $storedEarning = null;
+        if ($earningPeriod->storedEarning) {
+            $storedEarning = [
+                'id'             => $earningPeriod->storedEarning->id,
+                'btc_amount'     => (float) $earningPeriod->storedEarning->btc_amount,
+                'revenue_amount' => (float) $earningPeriod->storedEarning->revenue_amount,
+                'stored_at'      => $earningPeriod->storedEarning->stored_at?->format('Y-m-d H:i:s'),
+                'notes'          => $earningPeriod->storedEarning->notes,
+            ];
+        }
+
+        return $this->success([
+            // Period info
+            'period' => [
+                'id'                => $earningPeriod->id,
+                'start_date'        => $earningPeriod->start_date?->format('Y-m-d'),
+                'end_date'          => $earningPeriod->end_date?->format('Y-m-d'),
+                'days_count'        => $earningPeriod->days_count,
+                'status'            => $earningPeriod->status,
+                'client_decision'   => $earningPeriod->client_decision,
+                'is_locked'         => $earningPeriod->is_locked,
+                'is_eligible'       => $earningPeriod->isEligibleForRequest(),
+                'requested_at'      => $earningPeriod->requested_at?->format('Y-m-d H:i:s'),
+                'processed_at'      => $earningPeriod->processed_at?->format('Y-m-d H:i:s'),
+                'notes'             => $earningPeriod->notes,
+                'total_btc_earned'  => (float) $earningPeriod->total_btc_earned,
+                'average_btc_price' => (float) $earningPeriod->average_btc_price,
+                'total_revenue'     => (float) $earningPeriod->total_revenue,
+            ],
+
+            // Chart-ready data
+            'chart' => [
+                'labels'             => $dailyEarnings->pluck('date'),
+                'daily_btc'          => $dailyEarnings->pluck('btc_earned'),
+                'daily_revenue'      => $dailyEarnings->pluck('revenue'),
+                'daily_btc_price'    => $dailyEarnings->pluck('btc_price'),
+                'cumulative_btc'     => $cumulative->pluck('cumulative_btc'),
+                'cumulative_revenue' => $cumulative->pluck('cumulative_revenue'),
+            ],
+
+            // Full daily breakdown
+            'daily_earnings' => $dailyEarnings,
+
+            // All transactions
+            'transactions'   => $transactions,
+
+            // Stored earning
+            'stored_earning' => $storedEarning,
+        ]);
+    }
 }

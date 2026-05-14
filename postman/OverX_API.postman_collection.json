@@ -234,6 +234,21 @@
               }
             },
             {
+              "name": "Earning Period Chart (Single)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/{{earning_period_id}}/chart",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "{{earning_period_id}}", "chart"]
+                }
+              }
+            },
+            {
               "name": "Request Cashout",
               "request": {
                 "method": "POST",
