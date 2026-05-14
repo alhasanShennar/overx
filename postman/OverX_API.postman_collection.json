@@ -1,0 +1,431 @@
+{
+  "info": {
+    "name": "OverX API",
+    "_postman_id": "overx-api-collection-v1",
+    "description": "OverX Laravel API – complete collection covering Auth and Client endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.token) {",
+                  "    pm.environment.set('token', json.data.token);",
+                  "    console.log('Token saved:', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Me (Current User)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "me"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"old_password\",\n  \"password\": \"new_password\",\n  \"password_confirmation\": \"new_password\"\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "change-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Client",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/client/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "client", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/client/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "client", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Contracts",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/client/contracts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "client", "contracts"]
+            }
+          }
+        },
+        {
+          "name": "Earnings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/client/earnings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "client", "earnings"]
+            }
+          }
+        },
+        {
+          "name": "Earning Periods",
+          "item": [
+            {
+              "name": "List Earning Periods",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods?status=",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods"],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "",
+                      "description": "Filter by status: pending | completed | paid (optional)"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Pending Earning Periods",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/pending",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "pending"]
+                }
+              }
+            },
+            {
+              "name": "Earning Periods Chart",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/chart",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "chart"]
+                }
+              }
+            },
+            {
+              "name": "Show Earning Period",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/{{earning_period_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "{{earning_period_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Request Cashout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"cashout_details_id\": null\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/{{earning_period_id}}/request-cashout",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "{{earning_period_id}}", "request-cashout"]
+                }
+              }
+            },
+            {
+              "name": "Request Store",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"notes\": \"\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/{{earning_period_id}}/request-store",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "{{earning_period_id}}", "request-store"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Transactions & History",
+          "item": [
+            {
+              "name": "Transactions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/transactions",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "transactions"]
+                }
+              }
+            },
+            {
+              "name": "Cashouts",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashouts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashouts"]
+                }
+              }
+            },
+            {
+              "name": "Stored Earnings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/stored-earnings",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "stored-earnings"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cashout Details",
+          "item": [
+            {
+              "name": "List Cashout Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashout-details",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashout-details"]
+                }
+              }
+            },
+            {
+              "name": "Store Cashout Detail (Crypto)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"label\": \"My USDT Wallet\",\n    \"type\": \"crypto\",\n    \"is_default\": true,\n    \"crypto_wallet_address\": \"TXyz1234567890abcdef\",\n    \"crypto_network\": \"TRC20\",\n    \"currency_id\": null\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashout-details",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashout-details"]
+                }
+              }
+            },
+            {
+              "name": "Store Cashout Detail (Bank)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"label\": \"My Bank Account\",\n    \"type\": \"bank\",\n    \"is_default\": false,\n    \"account_holder\": \"John Doe\",\n    \"bank_name\": \"Bank of Example\",\n    \"swift_code\": \"EXAMPLEG\",\n    \"routing_number\": \"021000021\",\n    \"iban\": \"DE89370400440532013000\",\n    \"currency_id\": null\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashout-details",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashout-details"]
+                }
+              }
+            },
+            {
+              "name": "Update Cashout Detail",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"label\": \"Updated Label\",\n    \"is_default\": true\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashout-details/{{cashout_detail_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashout-details", "{{cashout_detail_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Cashout Detail",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/cashout-details/{{cashout_detail_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "cashout-details", "{{cashout_detail_id}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

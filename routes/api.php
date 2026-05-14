@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     // ─── Client Routes ───────────────────────────────────────────────────────
     Route::prefix('client')->group(function () {
@@ -31,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Earning periods
         Route::get('/earning-periods/pending', [EarningPeriodController::class, 'pending']);
+        Route::get('/earning-periods/chart', [EarningPeriodController::class, 'chart']);
         Route::get('/earning-periods', [EarningPeriodController::class, 'index']);
         Route::get('/earning-periods/{earning_period}', [EarningPeriodController::class, 'show']);
         Route::post('/earning-periods/{earning_period}/request-cashout', [EarningPeriodController::class, 'requestCashout']);

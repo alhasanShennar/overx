@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ChangePasswordRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -41,5 +43,18 @@ class AuthController extends Controller
         return $this->success(
             UserResource::make($request->user()->load('client')),
         );
+    }
+
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! Hash::check($request->current_password, $user->password)) {
+            return $this->error(null, 'The current password is incorrect.', 422);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return $this->success(null, 'Password changed successfully.');
     }
 }

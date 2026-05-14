@@ -59,6 +59,42 @@ class EarningPeriodController extends Controller
         );
     }
 
+    public function chart(Request $request): JsonResponse
+    {
+        $client = $request->user()->client;
+
+        if (! $client) {
+            return $this->error(null, 'Client profile not found.', 404);
+        }
+
+        $periods = $client->earningPeriods()
+            ->whereIn('status', [
+                EarningPeriod::STATUS_STORED,
+                EarningPeriod::STATUS_CASHED_OUT,
+                EarningPeriod::STATUS_REQUEST_PENDING,
+                EarningPeriod::STATUS_COMPLETED,
+            ])
+            ->orderBy('start_date')
+            ->get(['id', 'start_date', 'end_date', 'total_btc_earned', 'average_btc_price', 'total_revenue', 'status']);
+
+        $data = $periods->map(fn ($p) => [
+            'label'            => $p->start_date?->format('M Y'),
+            'start_date'       => $p->start_date?->format('Y-m-d'),
+            'end_date'         => $p->end_date?->format('Y-m-d'),
+            'total_btc_earned' => (float) $p->total_btc_earned,
+            'average_btc_price'=> (float) $p->average_btc_price,
+            'total_revenue'    => (float) $p->total_revenue,
+            'status'           => $p->status,
+        ]);
+
+        return $this->success([
+            'labels'  => $data->pluck('label'),
+            'revenue' => $data->pluck('total_revenue'),
+            'btc'     => $data->pluck('total_btc_earned'),
+            'details' => $data,
+        ]);
+    }
+
     public function pending(Request $request): JsonResponse
     {
         $client = $request->user()->client;
