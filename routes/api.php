@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
         Route::get('/contracts', [ContractController::class, 'index']);
         Route::get('/earnings', [EarningController::class, 'index']);
 

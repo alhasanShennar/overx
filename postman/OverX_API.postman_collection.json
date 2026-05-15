@@ -119,13 +119,34 @@
           }
         },
         {
-          "name": "Profile",
+          "name": "Get Profile",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Accept", "value": "application/json" },
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
+            "url": {
+              "raw": "{{base_url}}/api/client/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "client", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+9665XXXXXXXX\",\n    \"passport\": \"A12345678\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
             "url": {
               "raw": "{{base_url}}/api/client/profile",
               "host": ["{{base_url}}"],
