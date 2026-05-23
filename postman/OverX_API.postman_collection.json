@@ -101,6 +101,67 @@
       ]
     },
     {
+      "name": "Services",
+      "item": [
+        {
+          "name": "List Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/services",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services"]
+            },
+            "description": "Returns all active services ordered by 'order' field. Public endpoint — no auth required."
+          }
+        },
+        {
+          "name": "Show Service",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/services/{{service_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "{{service_id}}"]
+            },
+            "description": "Returns a single service with full details (overview, process steps, FAQs). Public endpoint — no auth required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Send Contact Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Carter\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+971501234567\",\n    \"subject\": \"General Inquiry\",\n    \"message\": \"Hello, I would like to know more about your services.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contact",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contact"]
+            },
+            "description": "Submit a contact form message. Public endpoint — no auth required.\n\nRequired: name, email, message\nOptional: phone, subject"
+          }
+        }
+      ]
+    },
+    {
       "name": "Client",
       "item": [
         {

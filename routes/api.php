@@ -10,11 +10,18 @@ use App\Http\Controllers\Api\Client\EarningPeriodController;
 use App\Http\Controllers\Api\Client\ProfileController;
 use App\Http\Controllers\Api\Client\StoredEarningController;
 use App\Http\Controllers\Api\Client\TransactionController;
+use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public Auth ────────────────────────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login']);
+
+// ─── Public Content ──────────────────────────────────────────────────────────
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{service}', [ServiceController::class, 'show']);
+Route::post('/contact', [ContactController::class, 'store']);
 
 // ─── Signed PDF Report Links (public — signed URL is the credential) ─────────
 Route::get('/reports/earnings', [ReportController::class, 'allPeriods'])
