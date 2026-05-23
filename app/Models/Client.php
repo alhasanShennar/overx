@@ -12,6 +12,7 @@ class Client extends Model
         'user_id',
         'phone',
         'passport',
+        'welcome_sent_at',
     ];
 
     public function user(): BelongsTo

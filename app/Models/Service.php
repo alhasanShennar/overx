@@ -11,6 +11,8 @@ class Service extends Model
         'number',
         'title',
         'tagline',
+        'card_image',
+        'hero_image',
         'overview_title',
         'overview_description',
         'overview_image',

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
 use App\Filament\Resources\ClientResource\RelationManagers;
+use App\Mail\ClientWelcomeMail;
 use App\Models\Client;
 use App\Models\Earning;
 use App\Models\EarningPeriod;
@@ -16,6 +17,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class ClientResource extends Resource
@@ -147,6 +150,37 @@ class ClientResource extends Resource
                             ->send();
                     }),
                 Tables\Actions\EditAction::make(),
+
+                Tables\Actions\Action::make('send_welcome')
+                    ->label('Send Welcome')
+                    ->icon('heroicon-m-envelope')
+                    ->color('info')
+                    ->button()
+                    ->size('sm')
+                    ->visible(fn (Client $record) => $record->welcome_sent_at === null)
+                    ->requiresConfirmation()
+                    ->modalHeading('Send Welcome Email')
+                    ->modalDescription(fn (Client $record) => 'This will generate a new password for ' . $record->user->name . ' and send their login credentials by email. Continue?')
+                    ->modalSubmitActionLabel('Yes, send it')
+                    ->action(function (Client $record): void {
+                        $plainPassword = Str::password(12, symbols: false);
+
+                        $record->user->update([
+                            'password' => Hash::make($plainPassword),
+                        ]);
+
+                        Mail::to($record->user->email)
+                            ->send(new ClientWelcomeMail($record, $plainPassword));
+
+                        $record->update(['welcome_sent_at' => now()]);
+
+                        Notification::make()
+                            ->title('Welcome email sent to ' . $record->user->email)
+                            ->success()
+                            ->send();
+                    })
+                    ->failureNotificationTitle('Failed to send email — check mail configuration.')
+                    ->after(fn () => null),
             ]);
     }
 

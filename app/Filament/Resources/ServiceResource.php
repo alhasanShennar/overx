@@ -34,6 +34,18 @@ class ServiceResource extends Resource
                 TextInput::make('number')->required()->maxLength(10)->label('Service Number')->placeholder('01'),
                 TextInput::make('title')->required()->maxLength(255)->columnSpanFull(),
                 TextInput::make('tagline')->maxLength(255)->columnSpanFull(),
+                FileUpload::make('card_image')
+                    ->label('Card Image')
+                    ->helperText('Displayed when this service appears as a card.')
+                    ->image()
+                    ->directory('services/cards')
+                    ->columnSpanFull(),
+                FileUpload::make('hero_image')
+                    ->label('Hero Banner Image')
+                    ->helperText('Displayed at the top of the service page alongside the title.')
+                    ->image()
+                    ->directory('services/heroes')
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('order')->numeric()->default(0),
                 Toggle::make('is_active')->default(true)->inline(false),
             ])->columns(2),
