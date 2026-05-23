@@ -305,28 +305,24 @@
               "name": "Download PDF — All Periods (via signed URL)",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{token}}" }
-                ],
+                "header": [],
                 "url": {
                   "raw": "{{pdf_url_all}}",
                   "host": ["{{pdf_url_all}}"]
                 },
-                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. Requires Bearer token (route is inside auth:sanctum). Run the \"get signed URL\" request first, then send this one."
+                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. No auth required — the signed URL itself is the credential (contains client ID + expiry + signature). Run the \"get signed URL\" request first, then send this one (or paste the URL in a browser)."
               }
             },
             {
               "name": "Download PDF — Single Period (via signed URL)",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{token}}" }
-                ],
+                "header": [],
                 "url": {
                   "raw": "{{pdf_url_single}}",
                   "host": ["{{pdf_url_single}}"]
                 },
-                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. Requires Bearer token (route is inside auth:sanctum). Run the \"get signed URL\" request first, then send this one."
+                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. No auth required — the signed URL itself is the credential (contains client ID + expiry + signature). Run the \"get signed URL\" request first, then send this one (or paste the URL in a browser)."
               }
             },
             {
