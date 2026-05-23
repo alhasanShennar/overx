@@ -10,6 +10,7 @@ use App\Models\EarningPeriod;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Illuminate\Validation\Rule;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,16 +30,18 @@ class ClientResource extends Resource
         return $form->schema([
             Grid::make(2)->schema([
                 Forms\Components\Section::make('User Account')
-                    ->relationship('user')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        Forms\Components\TextInput::make('user_name')
                             ->label('Full Name')->required(),
-                        Forms\Components\TextInput::make('email')
-                            ->label('Email')->email()->required(),
-                        Forms\Components\TextInput::make('password')
+                        Forms\Components\TextInput::make('user_email')
+                            ->label('Email')->email()->required()
+                            ->rules(fn ($livewire) => [
+                                'required', 'email',
+                                Rule::unique('users', 'email')
+                                    ->ignore($livewire->record?->user_id),
+                            ]),
+                        Forms\Components\TextInput::make('user_password')
                             ->label('Password')->password()
-                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                            ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context) => $context === 'create'),
                     ]),
 
@@ -151,6 +154,7 @@ class ClientResource extends Resource
     {
         return [
             RelationManagers\ContractsRelationManager::class,
+            RelationManagers\ContractHistoryRelationManager::class,
             RelationManagers\EarningPeriodsRelationManager::class,
             RelationManagers\EarningsRelationManager::class,
             RelationManagers\TransactionsRelationManager::class,

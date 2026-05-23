@@ -17,19 +17,16 @@ class CreateClient extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         return DB::transaction(function () use ($data) {
-            $userData = $data['user'] ?? [];
             $user = User::create([
-                'name' => $userData['name'],
-                'email' => $userData['email'],
-                'password' => Hash::make($userData['password']),
+                'name'     => $data['user_name'],
+                'email'    => $data['user_email'],
+                'password' => Hash::make($data['user_password']),
             ]);
 
             return Client::create([
-                'user_id' => $user->id,
-                'phone' => $data['phone'] ?? null,
+                'user_id'  => $user->id,
+                'phone'    => $data['phone'] ?? null,
                 'passport' => $data['passport'] ?? null,
-                'current_storing_machines' => $data['current_storing_machines'] ?? 0,
-                'current_cashout_machines' => $data['current_cashout_machines'] ?? 0,
             ]);
         });
     }

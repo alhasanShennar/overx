@@ -21,8 +21,9 @@ class StoredEarningsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('btc_amount')->numeric(8)->label('BTC'),
-                Tables\Columns\TextColumn::make('revenue_amount')->money('USD')->label('Revenue'),
+                Tables\Columns\TextColumn::make('stored_amount')
+                    ->label('Stored Amount')
+                    ->getStateUsing(fn ($record) => $record->storedAmountFormatted),
                 Tables\Columns\TextColumn::make('stored_at')->dateTime()->label('Stored At'),
                 Tables\Columns\TextColumn::make('earningPeriod.start_date')
                     ->label('Period')->date(),

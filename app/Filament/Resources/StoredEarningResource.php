@@ -34,8 +34,9 @@ class StoredEarningResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('client.user.name')
                     ->label('Client')->searchable(),
-                Tables\Columns\TextColumn::make('btc_amount')->numeric(8)->label('BTC Stored'),
-                Tables\Columns\TextColumn::make('revenue_amount')->money('USD')->label('Value'),
+                Tables\Columns\TextColumn::make('stored_amount')
+                    ->label('Stored Amount')
+                    ->getStateUsing(fn ($record) => $record->storedAmountFormatted),
                 Tables\Columns\TextColumn::make('stored_at')->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('earningPeriod.start_date')
                     ->label('Period')->date(),

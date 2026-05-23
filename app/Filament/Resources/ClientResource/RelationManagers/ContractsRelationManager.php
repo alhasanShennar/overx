@@ -21,12 +21,20 @@ class ContractsRelationManager extends RelationManager
         return $form->schema([
             Forms\Components\TextInput::make('amount')->numeric()->prefix('$')->nullable(),
             Forms\Components\FileUpload::make('file')->nullable()->directory('contracts'),
-            Forms\Components\TextInput::make('storing_machines_no')
-                ->label('Storing Machines')
-                ->numeric()
-                ->step(5)
-                ->minValue(0)
-                ->default(0),
+            Forms\Components\Grid::make(1)->schema([
+                Forms\Components\TextInput::make('storing_machines_no')
+                    ->label('Storing Machines')
+                    ->numeric()
+                    ->step(5)
+                    ->minValue(0)
+                    ->default(0),
+                Forms\Components\Select::make('storing_machines_currency')
+                    ->label('Stored as')
+                    ->options(['USDT' => 'USDT', 'BTC' => 'BTC'])
+                    ->default('USDT')
+                    ->required()
+                    ->native(false),
+            ]),
             Forms\Components\TextInput::make('cashout_machines_no')
                 ->label('Cashout Machines')
                 ->numeric()
@@ -42,9 +50,14 @@ class ContractsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>=', today()))->orderBy('start_date'))
             ->columns([
                 Tables\Columns\TextColumn::make('amount')->money('USD')->sortable(),
-                Tables\Columns\TextColumn::make('storing_machines_no')->label('Storing M.')->alignCenter(),
+                Tables\Columns\TextColumn::make('storing_machines_no')
+                    ->label('Storing M.')
+                    ->alignCenter()
+                    ->formatStateUsing(fn ($state, $record) => $state . ' (' . $record->storing_machines_currency . ')'),
+
                 Tables\Columns\TextColumn::make('cashout_machines_no')->label('Cashout M.')->alignCenter(),
                 Tables\Columns\TextColumn::make('start_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('end_date')->date()->sortable(),

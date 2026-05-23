@@ -97,7 +97,12 @@ class TransactionResource extends Resource
                             })
                             ->nullable(),
                         Forms\Components\DatePicker::make('date')->default(today())->required(),
-                        Forms\Components\TextInput::make('amount')->numeric()->prefix('$')->nullable(),
+                        Forms\Components\TextInput::make('amount')
+                            ->numeric()
+                            ->prefix('$')
+                            ->default(fn (Transaction $record) => $record->fiat_amount)
+                            ->disabled()
+                            ->dehydrated(false),
                         Forms\Components\FileUpload::make('receipt')->directory('cashout-receipts')->nullable(),
                         Forms\Components\Textarea::make('notes')->nullable(),
                     ])

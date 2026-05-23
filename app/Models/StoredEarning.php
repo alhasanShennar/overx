@@ -37,4 +37,35 @@ class StoredEarning extends Model
     {
         return $this->belongsTo(EarningPeriod::class);
     }
+
+    /**
+     * Get the storing currency from the client's contract that covers this earning period.
+     * Falls back to 'BTC' if no matching contract found.
+     */
+    public function getStoringCurrencyAttribute(): string
+    {
+        $period = $this->earningPeriod;
+
+        if ($period) {
+            $contract = $this->client->contracts()
+                ->where('start_date', '<=', $period->start_date)
+                ->where('end_date', '>=', $period->start_date)
+                ->latest('start_date')
+                ->first();
+        } else {
+            $contract = $this->client->contracts()->latest('start_date')->first();
+        }
+
+        return $contract?->storing_machines_currency ?? 'BTC';
+    }
+
+    /**
+     * Get the stored amount formatted with its currency symbol.
+     */
+    public function getStoredAmountFormattedAttribute(): string
+    {
+        return $this->storingCurrency === 'BTC'
+            ? number_format((float) $this->btc_amount, 8) . ' BTC'
+            : '$' . number_format((float) $this->revenue_amount, 2) . ' USDT';
+    }
 }

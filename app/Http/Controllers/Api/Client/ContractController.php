@@ -20,7 +20,7 @@ class ContractController extends Controller
             return $this->error(null, 'Client profile not found.', 404);
         }
 
-        $contracts = $client->contracts()->latest()->paginate(15);
+        $contracts = $client->activeContracts()->paginate(15);
 
         return $this->pagedSuccess(
             ContractResource::collection($contracts),

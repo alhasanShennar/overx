@@ -12,6 +12,7 @@ class Contract extends Model
         'amount',
         'file',
         'storing_machines_no',
+        'storing_machines_currency',
         'cashout_machines_no',
         'start_date',
         'end_date',
