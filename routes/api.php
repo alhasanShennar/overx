@@ -15,17 +15,17 @@ use Illuminate\Support\Facades\Route;
 
 // ─── Public Auth ────────────────────────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('/reports/earnings', [ReportController::class, 'allPeriods'])
+    ->name('reports.earnings.all');
+Route::get('/reports/earnings/{earning_period}', [ReportController::class, 'singlePeriod'])
+    ->name('reports.earnings.single');
 // ─── Authenticated ───────────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // ─── Signed PDF Report Links (protected by URL signature) ────────────────
-    Route::get('/reports/earnings', [ReportController::class, 'allPeriods'])
-        ->name('reports.earnings.all');
-    Route::get('/reports/earnings/{earning_period}', [ReportController::class, 'singlePeriod'])
-        ->name('reports.earnings.single');
+
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
