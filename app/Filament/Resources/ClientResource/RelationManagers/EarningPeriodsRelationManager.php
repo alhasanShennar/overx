@@ -18,19 +18,40 @@ class EarningPeriodsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\DatePicker::make('start_date')
+            Forms\Components\Select::make('month_selector')
+                ->label('Period Month')
+                ->options(function (): array {
+                    $options = [];
+                    for ($i = -6; $i <= 12; $i++) {
+                        $month = Carbon::today()->addMonths($i)->startOfMonth();
+                        $options[$month->toDateString()] = $month->format('F Y');
+                    }
+                    return $options;
+                })
+                ->default(fn () => Carbon::today()->startOfMonth()->toDateString())
                 ->required()
                 ->live()
-                ->afterStateUpdated(function (Set $set, $state): void {
+                ->dehydrated(false)
+                ->afterStateHydrated(function ($component, $record): void {
+                    if ($record?->start_date) {
+                        $component->state($record->start_date->startOfMonth()->toDateString());
+                    }
+                })
+                ->afterStateUpdated(function (Set $set, $state, string $operation): void {
                     if (blank($state)) {
-                        $set('end_date', null);
-
                         return;
                     }
-
-                    $set('end_date', Carbon::parse($state)->addDays(30)->toDateString());
+                    $month = Carbon::parse($state);
+                    $start = ($operation === 'create' && $month->isSameMonth(Carbon::today()))
+                        ? Carbon::today()
+                        : $month->copy()->startOfMonth();
+                    $set('start_date', $start->toDateString());
+                    $set('end_date', $month->copy()->endOfMonth()->toDateString());
                 }),
-            Forms\Components\DatePicker::make('end_date')->required(),
+            Forms\Components\Hidden::make('start_date')
+                ->default(fn () => Carbon::today()->toDateString()),
+            Forms\Components\Hidden::make('end_date')
+                ->default(fn () => Carbon::today()->endOfMonth()->toDateString()),
             Forms\Components\Select::make('status')
                 ->options([
                     'pending' => 'Pending',
@@ -48,8 +69,7 @@ class EarningPeriodsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('start_date')->date(),
-                Tables\Columns\TextColumn::make('end_date')->date(),
+                Tables\Columns\TextColumn::make('period_label')->label('Period'),
                 Tables\Columns\TextColumn::make('total_btc_earned')->numeric(8)->label('BTC Earned'),
                 Tables\Columns\TextColumn::make('total_revenue')->money('USD')->label('Revenue'),
                 Tables\Columns\BadgeColumn::make('status')

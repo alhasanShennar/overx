@@ -12,9 +12,7 @@ class EarningPeriodResource extends JsonResource
         return [
             'id' => $this->id,
             'client_id' => $this->client_id,
-            'start_date' => $this->start_date?->format('Y-m-d'),
-            'end_date' => $this->end_date?->format('Y-m-d'),
-            'days_count' => $this->days_count,
+            'period' => $this->period_label,
             'total_btc_earned' => $this->total_btc_earned,
             'average_btc_price' => $this->average_btc_price,
             'total_revenue' => $this->total_revenue,

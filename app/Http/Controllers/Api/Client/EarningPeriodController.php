@@ -12,12 +12,53 @@ use App\Services\EarningPeriodService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class EarningPeriodController extends Controller
 {
     use HttpResponses;
 
     public function __construct(private readonly EarningPeriodService $service) {}
+
+    public function report(Request $request): JsonResponse
+    {
+        $client = $request->user()->client;
+
+        if (! $client) {
+            return $this->error(null, 'Client profile not found.', 404);
+        }
+
+        $url = URL::temporarySignedRoute(
+            'reports.earnings.all',
+            now()->addMinutes(15),
+            ['client' => $client->id]
+        );
+
+        return $this->success([
+            'url'        => $url,
+            'expires_at' => now()->addMinutes(15)->toIso8601String(),
+        ]);
+    }
+
+    public function reportSingle(Request $request, EarningPeriod $earningPeriod): JsonResponse
+    {
+        $client = $request->user()->client;
+
+        if (! $client || $client->id !== $earningPeriod->client_id) {
+            return $this->error(null, 'Not found.', 404);
+        }
+
+        $url = URL::temporarySignedRoute(
+            'reports.earnings.single',
+            now()->addMinutes(15),
+            ['client' => $client->id, 'earning_period' => $earningPeriod->id]
+        );
+
+        return $this->success([
+            'url'        => $url,
+            'expires_at' => now()->addMinutes(15)->toIso8601String(),
+        ]);
+    }
 
     public function index(Request $request): JsonResponse
     {
@@ -140,8 +181,8 @@ class EarningPeriodController extends Controller
             return $this->error(null, 'Not found.', 404);
         }
 
-        if (! $earningPeriod->isEligibleForRequest()) {
-            return $this->error(null, 'This earning period is not eligible for a store request.', 422);
+        if (! $earningPeriod->isEligibleForStore()) {
+            return $this->error(null, 'Store is not allowed at month end. Please request cashout instead.', 422);
         }
 
         $transaction = $this->service->submitStoreRequest($earningPeriod, 'client');

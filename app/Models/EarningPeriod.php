@@ -82,6 +82,14 @@ class EarningPeriod extends Model
         return $this->status === self::STATUS_COMPLETED && ! $this->is_locked;
     }
 
+    /**
+     * Store is not allowed at month end — only cashout is permitted.
+     */
+    public function isEligibleForStore(): bool
+    {
+        return false;
+    }
+
     public function isLocked(): bool
     {
         return $this->is_locked;
@@ -107,5 +115,13 @@ class EarningPeriod extends Model
     public function getDaysCountAttribute(): int
     {
         return $this->start_date->diffInDays($this->end_date) + 1;
+    }
+
+    /**
+     * Returns the period as a human-readable month label, e.g. "May 2026".
+     */
+    public function getPeriodLabelAttribute(): string
+    {
+        return $this->start_date->format('F Y');
     }
 }

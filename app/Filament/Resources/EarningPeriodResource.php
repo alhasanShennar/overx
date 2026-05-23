@@ -33,18 +33,40 @@ class EarningPeriodResource extends Resource
                 ->label('Client')
                 ->options(fn() => Client::with('user')->get()->pluck('user.name', 'id'))
                 ->required()->searchable(),
-            Forms\Components\DatePicker::make('start_date')
+            Forms\Components\Select::make('month_selector')
+                ->label('Period Month')
+                ->options(function (): array {
+                    $options = [];
+                    for ($i = -6; $i <= 12; $i++) {
+                        $month = Carbon::today()->addMonths($i)->startOfMonth();
+                        $options[$month->toDateString()] = $month->format('F Y');
+                    }
+                    return $options;
+                })
+                ->default(fn () => Carbon::today()->startOfMonth()->toDateString())
                 ->required()
                 ->live()
-                ->afterStateUpdated(function (Set $set, $state): void {
+                ->dehydrated(false)
+                ->afterStateHydrated(function ($component, $record): void {
+                    if ($record?->start_date) {
+                        $component->state($record->start_date->startOfMonth()->toDateString());
+                    }
+                })
+                ->afterStateUpdated(function (Set $set, $state, string $operation): void {
                     if (blank($state)) {
-                        $set('end_date', null);
                         return;
                     }
-
-                    $set('end_date', Carbon::parse($state)->addDays(30)->toDateString());
+                    $month = Carbon::parse($state);
+                    $start = ($operation === 'create' && $month->isSameMonth(Carbon::today()))
+                        ? Carbon::today()
+                        : $month->copy()->startOfMonth();
+                    $set('start_date', $start->toDateString());
+                    $set('end_date', $month->copy()->endOfMonth()->toDateString());
                 }),
-            Forms\Components\DatePicker::make('end_date')->required(),
+            Forms\Components\Hidden::make('start_date')
+                ->default(fn () => Carbon::today()->toDateString()),
+            Forms\Components\Hidden::make('end_date')
+                ->default(fn () => Carbon::today()->endOfMonth()->toDateString()),
             Forms\Components\Select::make('status')
                 ->options([
                     'pending' => 'Pending',
@@ -64,8 +86,8 @@ class EarningPeriodResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('client.user.name')
                     ->label('Client')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('start_date')->date()->sortable(),
-                Tables\Columns\TextColumn::make('end_date')->date(),
+                Tables\Columns\TextColumn::make('period_label')
+                    ->label('Period')->sortable(query: fn ($q, $d) => $q->orderBy('start_date', $d)),
                 Tables\Columns\TextColumn::make('total_btc_earned')
                     ->numeric(8)->label('Total BTC'),
                 Tables\Columns\TextColumn::make('total_revenue')

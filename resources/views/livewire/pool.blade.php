@@ -32,8 +32,7 @@
                     <option value="">All Periods</option>
                     @foreach ($periods as $period)
                         <option value="{{ $period->id }}">
-                            {{ $period->start_date->format('M d, Y') }}
-                            @if ($period->end_date) – {{ $period->end_date->format('M d, Y') }} @endif
+                            {{ $period->period_label }}
                         </option>
                     @endforeach
                 </select>

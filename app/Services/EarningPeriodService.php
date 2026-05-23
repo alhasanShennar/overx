@@ -32,7 +32,8 @@ class EarningPeriodService
     }
 
     /**
-     * Create a new 30-day earning period for a client.
+     * Create a new calendar-month earning period for a client.
+     * The period spans from the start date to the last day of that month.
      */
     public function createNewPeriod(Client $client, ?Carbon $startDate = null): EarningPeriod
     {
@@ -46,7 +47,7 @@ class EarningPeriodService
                 : Carbon::today();
         }
 
-        $endDate = $startDate->copy()->addDays(29); // 30 days inclusive
+        $endDate = $startDate->copy()->endOfMonth()->startOfDay(); // end of the calendar month
 
         return EarningPeriod::create([
             'client_id' => $client->id,
@@ -86,7 +87,7 @@ class EarningPeriodService
 
         // Create periods until we cover the given date
         $periodStart = $lastPeriod->end_date->addDay();
-        while ($date->greaterThan($periodStart->copy()->addDays(29))) {
+        while ($date->greaterThan($periodStart->copy()->endOfMonth())) {
             $period = $this->createNewPeriod($client, $periodStart->copy());
             // Mark as completed since it has no earnings yet (gap period)
             $period->update(['status' => EarningPeriod::STATUS_COMPLETED]);

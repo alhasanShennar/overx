@@ -240,6 +240,96 @@
               }
             },
             {
+              "name": "Earnings Report — All Periods (get signed URL)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.url) {",
+                      "    pm.environment.set('pdf_url_all', json.data.url);",
+                      "    console.log('PDF URL saved:', json.data.url);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/report",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "report"]
+                },
+                "description": "Returns a temporary signed URL (valid 15 minutes). The test script auto-saves it to `{{pdf_url_all}}` — just run \"Download PDF — All Periods\" next."
+              }
+            },
+            {
+              "name": "Earnings Report — Single Period (get signed URL)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.url) {",
+                      "    pm.environment.set('pdf_url_single', json.data.url);",
+                      "    console.log('PDF URL saved:', json.data.url);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/client/earning-periods/{{earning_period_id}}/report",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "client", "earning-periods", "{{earning_period_id}}", "report"]
+                },
+                "description": "Returns a temporary signed URL (valid 15 minutes). The test script auto-saves it to `{{pdf_url_single}}` — just run \"Download PDF — Single Period\" next."
+              }
+            },
+            {
+              "name": "Download PDF — All Periods (via signed URL)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{pdf_url_all}}",
+                  "host": ["{{pdf_url_all}}"]
+                },
+                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. Requires Bearer token (route is inside auth:sanctum). Run the \"get signed URL\" request first, then send this one."
+              }
+            },
+            {
+              "name": "Download PDF — Single Period (via signed URL)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{token}}" }
+                ],
+                "url": {
+                  "raw": "{{pdf_url_single}}",
+                  "host": ["{{pdf_url_single}}"]
+                },
+                "description": "Downloads the PDF using the signed URL auto-saved by the \"get signed URL\" request. Requires Bearer token (route is inside auth:sanctum). Run the \"get signed URL\" request first, then send this one."
+              }
+            },
+            {
               "name": "Show Earning Period",
               "request": {
                 "method": "GET",

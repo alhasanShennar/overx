@@ -11,13 +11,15 @@ class PlatformHolding extends Model
         'btc_value',
         'eth_unit',
         'eth_value',
+        'usdt_value',
     ];
 
     protected $casts = [
-        'btc_unit'  => 'decimal:8',
-        'btc_value' => 'decimal:2',
-        'eth_unit'  => 'decimal:8',
-        'eth_value' => 'decimal:2',
+        'btc_unit'   => 'decimal:8',
+        'btc_value'  => 'decimal:2',
+        'eth_unit'   => 'decimal:8',
+        'eth_value'  => 'decimal:2',
+        'usdt_value' => 'decimal:2',
     ];
 
     /**
@@ -27,7 +29,7 @@ class PlatformHolding extends Model
     {
         return self::firstOrCreate(
             ['id' => 1],
-            ['btc_unit' => 0, 'btc_value' => 0, 'eth_unit' => 0, 'eth_value' => 0]
+            ['btc_unit' => 0, 'btc_value' => 0, 'eth_unit' => 0, 'eth_value' => 0, 'usdt_value' => 0]
         );
     }
 }

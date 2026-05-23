@@ -35,8 +35,7 @@ class PendingRequestsWidget extends BaseWidget
                     }),
                 Tables\Columns\TextColumn::make('total_btc_earned')->numeric(8)->label('BTC'),
                 Tables\Columns\TextColumn::make('total_revenue')->money('USD')->label('Revenue'),
-                Tables\Columns\TextColumn::make('start_date')->date()->label('Period Start'),
-                Tables\Columns\TextColumn::make('end_date')->date()->label('Period End'),
+                Tables\Columns\TextColumn::make('period_label')->label('Period'),
                 Tables\Columns\TextColumn::make('requested_at')->dateTime()->label('Requested'),
             ])
             ->actions([

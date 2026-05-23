@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Client\EarningPeriodController;
 use App\Http\Controllers\Api\Client\ProfileController;
 use App\Http\Controllers\Api\Client\StoredEarningController;
 use App\Http\Controllers\Api\Client\TransactionController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public Auth ────────────────────────────────────────────────────────────
@@ -19,6 +20,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // ─── Signed PDF Report Links (protected by URL signature) ────────────────
+    Route::get('/reports/earnings', [ReportController::class, 'allPeriods'])
+        ->name('reports.earnings.all');
+    Route::get('/reports/earnings/{earning_period}', [ReportController::class, 'singlePeriod'])
+        ->name('reports.earnings.single');
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
@@ -34,9 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Earning periods
         Route::get('/earning-periods/pending', [EarningPeriodController::class, 'pending']);
         Route::get('/earning-periods/chart', [EarningPeriodController::class, 'chart']);
+        Route::get('/earning-periods/report', [EarningPeriodController::class, 'report']);
         Route::get('/earning-periods', [EarningPeriodController::class, 'index']);
         Route::get('/earning-periods/{earning_period}', [EarningPeriodController::class, 'show']);
         Route::get('/earning-periods/{earning_period}/chart', [EarningPeriodController::class, 'periodChart']);
+        Route::get('/earning-periods/{earning_period}/report', [EarningPeriodController::class, 'reportSingle']);
         Route::post('/earning-periods/{earning_period}/request-cashout', [EarningPeriodController::class, 'requestCashout']);
         Route::post('/earning-periods/{earning_period}/request-store', [EarningPeriodController::class, 'requestStore']);
 
