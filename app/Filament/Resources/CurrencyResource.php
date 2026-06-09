@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\CurrencyResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\Currency;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,10 +14,17 @@ use Filament\Tables\Table;
 
 class CurrencyResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = Currency::class;
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationGroup = 'Settings';
     protected static ?int $navigationSort = 10;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_CURRENCIES;
+    }
 
     public static function form(Form $form): Form
     {

@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\TransactionResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\Client;
 use App\Models\Transaction;
-use App\Services\CashoutService;
 use App\Services\StoredEarningService;
 use App\Services\TransactionService;
 use Filament\Forms;
@@ -17,10 +18,17 @@ use Filament\Tables\Table;
 
 class TransactionResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = Transaction::class;
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
     protected static ?string $navigationGroup = 'Mining';
     protected static ?int $navigationSort = 3;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_TRANSACTIONS;
+    }
 
     public static function form(Form $form): Form
     {
@@ -79,37 +87,15 @@ class TransactionResource extends Resource
                     ->searchable(),
             ])
             ->actions([
-                Tables\Actions\Action::make('approve_cashout')
-                    ->label('Process Cashout')
+                Tables\Actions\Action::make('view_cashout')
+                    ->label('Review in Cashouts')
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
+                    ->url(fn (Transaction $record) => CashoutResource::getUrl('index'))
                     ->visible(
-                        fn(Transaction $record) =>
+                        fn (Transaction $record) =>
                         $record->status === 'pending' && $record->type === 'cashout'
-                    )
-                    ->form([
-                        Forms\Components\Select::make('cashout_details_id')
-                            ->label('Cashout Method')
-                            ->options(function (Transaction $record) {
-                                return $record->client->cashoutDetails()
-                                    ->get()
-                                    ->mapWithKeys(fn($d) => [$d->id => ($d->label ?: $d->type)]);
-                            })
-                            ->nullable(),
-                        Forms\Components\DatePicker::make('date')->default(today())->required(),
-                        Forms\Components\TextInput::make('amount')
-                            ->numeric()
-                            ->prefix('$')
-                            ->default(fn (Transaction $record) => $record->fiat_amount)
-                            ->disabled()
-                            ->dehydrated(false),
-                        Forms\Components\FileUpload::make('receipt')->directory('cashout-receipts')->nullable(),
-                        Forms\Components\Textarea::make('notes')->nullable(),
-                    ])
-                    ->action(function (Transaction $record, array $data) {
-                        app(CashoutService::class)->process($record, $data);
-                        Notification::make()->title('Cashout processed.')->success()->send();
-                    }),
+                    ),
 
                 Tables\Actions\Action::make('approve_store')
                     ->label('Process Store')

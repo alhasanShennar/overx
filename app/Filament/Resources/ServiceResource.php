@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\ServiceResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\Service;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
@@ -20,11 +22,18 @@ use Filament\Tables\Table;
 
 class ServiceResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
     protected static ?string $navigationGroup = 'Content';
     protected static ?int $navigationSort = 10;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_SERVICES;
+    }
 
     public static function form(Form $form): Form
     {

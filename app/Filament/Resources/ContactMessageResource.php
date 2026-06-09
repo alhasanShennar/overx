@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\ContactMessageResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\ContactMessage;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -16,12 +18,19 @@ use Filament\Tables\Table;
 
 class ContactMessageResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = ContactMessage::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
     protected static ?string $navigationGroup = 'Content';
     protected static ?string $navigationLabel = 'Contact Messages';
     protected static ?int $navigationSort = 20;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_CONTACT_MESSAGES;
+    }
 
     public static function getNavigationBadge(): ?string
     {

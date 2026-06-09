@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\ClientResource\Pages;
+use App\Support\AdminPermission;
 use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Mail\ClientWelcomeMail;
 use App\Models\Client;
@@ -23,10 +25,17 @@ use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class ClientResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = Client::class;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 3;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_CLIENTS;
+    }
 
     public static function form(Form $form): Form
     {

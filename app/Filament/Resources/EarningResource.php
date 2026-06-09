@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\EarningResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\Client;
 use App\Models\Earning;
 use App\Models\EarningPeriod;
@@ -15,10 +17,17 @@ use Filament\Tables\Table;
 
 class EarningResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = Earning::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?string $navigationGroup = 'Mining';
     protected static ?int $navigationSort = 1;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_EARNINGS;
+    }
 
     public static function form(Form $form): Form
     {

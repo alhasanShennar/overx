@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\CashoutResource;
 use App\Models\EarningPeriod;
 use App\Services\EarningPeriodService;
 use Filament\Forms;
@@ -40,31 +41,22 @@ class PendingRequestsWidget extends BaseWidget
             ])
             ->actions([
                 Tables\Actions\Action::make('approve_cashout')
-                    ->label('Approve Cashout')
+                    ->label('Review Cashout')
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
                     ->visible(fn (EarningPeriod $record) => $record->client_decision === EarningPeriod::DECISION_CASHOUT)
-                    ->form([
-                        Forms\Components\Select::make('cashout_details_id')
-                            ->label('Cashout Method')
-                            ->options(fn (EarningPeriod $record) => $record->client->cashoutDetails()
-                                ->get()
-                                ->mapWithKeys(fn ($d) => [
-                                    $d->id => ($d->label ?: $d->type) . ' — ' . ($d->crypto_wallet_address ?? $d->bank_name ?? ''),
-                                ]))
-                            ->nullable(),
-                        Forms\Components\DatePicker::make('date')->default(today())->required(),
-                        Forms\Components\TextInput::make('amount')
-                            ->numeric()->prefix('$')
-                            ->helperText('Leave blank to use period revenue.')
-                            ->nullable(),
-                        Forms\Components\FileUpload::make('receipt')
-                            ->directory('cashout-receipts')->nullable(),
-                        Forms\Components\Textarea::make('notes')->nullable(),
-                    ])
-                    ->action(function (EarningPeriod $record, array $data) {
-                        app(EarningPeriodService::class)->approveCashout($record, $data);
-                        Notification::make()->title('Cashout approved successfully.')->success()->send();
+                    ->url(function (EarningPeriod $record) {
+                        $transaction = $record->transactions()
+                            ->where('type', 'cashout')
+                            ->where('status', 'pending')
+                            ->latest()
+                            ->first();
+
+                        if ($transaction) {
+                            app(\App\Services\CashoutApprovalService::class)->ensurePendingCashout($transaction);
+                        }
+
+                        return CashoutResource::getUrl('index');
                     }),
 
                 Tables\Actions\Action::make('approve_store')

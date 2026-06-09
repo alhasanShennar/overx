@@ -136,8 +136,7 @@ class TransactionSeeder extends Seeder
 
         // ── Sara P2 → cashout (request_pending — awaiting admin) ────────────
         $saraP2 = $period($sara->id, '2026-02-14');
-        $saraDefaultDetail = CashoutDetail::where('client_id', $sara->id)->where('is_default', true)->first();
-        Transaction::create([
+        $t5 = Transaction::create([
             'client_id'        => $sara->id,
             'earning_period_id'=> $saraP2->id,
             'currency_id'      => $usdId,
@@ -149,6 +148,13 @@ class TransactionSeeder extends Seeder
             'requested_at'     => '2026-03-16 10:00:00',
             'processed_at'     => null,
             'notes'            => null,
+        ]);
+        Cashout::create([
+            'client_id'      => $sara->id,
+            'transaction_id' => $t5->id,
+            'amount'         => $saraP2->total_revenue,
+            'btc_amount'     => $saraP2->total_btc_earned,
+            'status'         => 'pending',
         ]);
 
         $this->command->info('TransactionSeeder: transactions, cashouts and stored_earnings seeded.');

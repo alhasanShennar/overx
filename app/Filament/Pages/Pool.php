@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Models\EarningPeriod;
+use App\Support\AdminPermission;
 use App\Models\PlatformHolding;
 use App\Models\StoredEarning;
 use Filament\Pages\Page;
@@ -10,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class Pool extends Page
 {
+    use RequiresAdminPermission;
+
     protected static ?string $navigationIcon  = 'heroicon-o-banknotes';
     protected static string  $view            = 'livewire.pool';
     protected static ?string $navigationLabel = 'Pool';
@@ -25,9 +29,9 @@ class Pool extends Page
 
     public string $chartPerClientJson = '[]';
 
-    public static function canAccess(): bool
+    protected static function adminPermission(): ?string
     {
-        return auth()->check();
+        return AdminPermission::VIEW_POOL;
     }
 
     public function mount(): void

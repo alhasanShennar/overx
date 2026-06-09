@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\RequiresAdminPermission;
 use App\Filament\Resources\StoredEarningResource\Pages;
+use App\Support\AdminPermission;
 use App\Models\Client;
 use App\Models\StoredEarning;
 use Filament\Forms;
@@ -13,10 +15,17 @@ use Filament\Tables\Table;
 
 class StoredEarningResource extends Resource
 {
+    use RequiresAdminPermission;
+
     protected static ?string $model = StoredEarning::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationGroup = 'Mining';
     protected static ?int $navigationSort = 5;
+
+    protected static function adminPermission(): ?string
+    {
+        return AdminPermission::VIEW_STORED_EARNINGS;
+    }
 
     public static function form(Form $form): Form
     {

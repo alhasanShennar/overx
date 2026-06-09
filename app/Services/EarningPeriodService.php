@@ -128,6 +128,8 @@ class EarningPeriodService
                 'requested_at' => now(),
             ]);
 
+            app(CashoutApprovalService::class)->ensurePendingCashout($transaction);
+
             $period->update([
                 'status' => EarningPeriod::STATUS_REQUEST_PENDING,
                 'client_decision' => EarningPeriod::DECISION_CASHOUT,
@@ -274,7 +276,7 @@ class EarningPeriodService
             ]);
         }
 
-        return $this->processCashout($transaction, $data);
+        return app(CashoutApprovalService::class)->ensurePendingCashout($transaction);
     }
 
     /**

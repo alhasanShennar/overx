@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
@@ -16,6 +18,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'cashout_approval_level',
     ];
 
     protected $hidden = [
@@ -26,7 +29,28 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'cashout_approval_level' => 'integer',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isAdmin();
+    }
+
+    public function hasCashoutApprovalLevel(): bool
+    {
+        return in_array($this->cashout_approval_level, [1, 2, 3], true);
+    }
+
+    public function cashoutApprovalLabel(): ?string
+    {
+        return match ($this->cashout_approval_level) {
+            1 => 'Approve 1',
+            2 => 'Approve 2',
+            3 => 'Approve 3',
+            default => null,
+        };
+    }
 
     public function superAdmin(): \Illuminate\Database\Eloquent\Relations\HasOne
     {

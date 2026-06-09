@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EarningPeriodResource\Pages;
+use App\Filament\Resources\CashoutResource;
 use App\Filament\Resources\EarningPeriodResource\RelationManagers;
 use App\Models\Client;
 use App\Models\EarningPeriod;
@@ -138,7 +139,7 @@ class EarningPeriodResource extends Resource
 
                 // Approve cashout request
                 Tables\Actions\Action::make('approve_cashout')
-                    ->label('Approve Cashout')
+                    ->label('Review Cashout')
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
                     ->visible(
@@ -146,59 +147,26 @@ class EarningPeriodResource extends Resource
                         $record->status === EarningPeriod::STATUS_REQUEST_PENDING &&
                             $record->client_decision === EarningPeriod::DECISION_CASHOUT
                     )
-                    ->form([
-                        Forms\Components\Select::make('cashout_details_id')
-                            ->label('Cashout Method')
-                            ->options(function (EarningPeriod $record) {
-                                return $record->client->cashoutDetails()
-                                    ->get()
-                                    ->mapWithKeys(fn($d) => [$d->id => ($d->label ?: $d->type) . ' — ' . ($d->crypto_wallet_address ?? $d->bank_name ?? '')]);
-                            })
-                            ->nullable(),
-                        Forms\Components\DatePicker::make('date')->default(today())->required(),
-                        Forms\Components\TextInput::make('amount')
-                            ->numeric()->prefix('$')
-                            ->helperText('Leave blank to use period total revenue.')
-                            ->nullable(),
-                        Forms\Components\FileUpload::make('receipt')
-                            ->directory('cashout-receipts')->nullable(),
-                        Forms\Components\Textarea::make('notes')->nullable(),
-                    ])
-                    ->action(function (EarningPeriod $record, array $data) {
-                        app(EarningPeriodService::class)->approveCashout($record, $data);
-                        Notification::make()->title('Cashout processed successfully.')->success()->send();
+                    ->url(function (EarningPeriod $record) {
+                        app(EarningPeriodService::class)->approveCashout($record, []);
+
+                        return CashoutResource::getUrl('index');
                     }),
 
                 // Admin-initiated cashout (completed period, no client request)
                 Tables\Actions\Action::make('process_cashout')
-                    ->label('Process Cashout')
+                    ->label('Start Cashout Approval')
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
                     ->visible(
                         fn(EarningPeriod $record) =>
                         in_array($record->status, [EarningPeriod::STATUS_COMPLETED]) && ! $record->is_locked
                     )
-                    ->form([
-                        Forms\Components\Select::make('cashout_details_id')
-                            ->label('Cashout Method')
-                            ->options(function (EarningPeriod $record) {
-                                return $record->client->cashoutDetails()
-                                    ->get()
-                                    ->mapWithKeys(fn($d) => [$d->id => ($d->label ?: $d->type) . ' — ' . ($d->crypto_wallet_address ?? $d->bank_name ?? '')]);
-                            })
-                            ->nullable(),
-                        Forms\Components\DatePicker::make('date')->default(today())->required(),
-                        Forms\Components\TextInput::make('amount')
-                            ->numeric()->prefix('$')
-                            ->helperText('Leave blank to use period total revenue.')
-                            ->nullable(),
-                        Forms\Components\FileUpload::make('receipt')
-                            ->directory('cashout-receipts')->nullable(),
-                        Forms\Components\Textarea::make('notes')->nullable(),
-                    ])
-                    ->action(function (EarningPeriod $record, array $data) {
-                        app(EarningPeriodService::class)->approveCashout($record, $data);
-                        Notification::make()->title('Cashout processed successfully.')->success()->send();
+                    ->requiresConfirmation()
+                    ->url(function (EarningPeriod $record) {
+                        app(EarningPeriodService::class)->approveCashout($record, []);
+
+                        return CashoutResource::getUrl('index');
                     }),
 
                 // Approve store request
