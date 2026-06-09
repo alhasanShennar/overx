@@ -19,12 +19,14 @@ class EditUser extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['is_admin'] = $this->record->isAdmin();
+        $data['permission_names'] = $this->record->getPermissionNames()->toArray();
 
         return $data;
     }
 
     protected function afterSave(): void
     {
+        $this->record->syncPermissions($this->data['permission_names'] ?? []);
         $this->syncAdminAccess((bool) ($this->data['is_admin'] ?? false));
     }
 

@@ -12,6 +12,8 @@ class CreateUser extends CreateRecord
 
     protected function afterCreate(): void
     {
+        $this->record->syncPermissions($this->data['permission_names'] ?? []);
+
         if ($this->data['is_admin'] ?? false) {
             Admin::firstOrCreate(['user_id' => $this->record->id]);
         }

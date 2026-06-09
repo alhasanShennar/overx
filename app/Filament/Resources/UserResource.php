@@ -56,12 +56,13 @@ class UserResource extends Resource
             Forms\Components\Section::make('Panel Permissions')
                 ->description('Control which sections appear in the side navigation. Dashboard is always available to admins.')
                 ->schema([
-                    Forms\Components\CheckboxList::make('permissions')
-                        ->relationship('permissions', 'name')
+                    Forms\Components\CheckboxList::make('permission_names')
+                        ->label('Permissions')
                         ->options($groupedPermissionOptions)
                         ->columns(2)
                         ->bulkToggleable()
-                        ->searchable(),
+                        ->searchable()
+                        ->dehydrated(true),
                 ]),
 
             Forms\Components\Section::make('Cashout Approval Role')
