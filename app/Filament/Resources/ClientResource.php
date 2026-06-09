@@ -10,9 +10,11 @@ use App\Mail\ClientWelcomeMail;
 use App\Models\Client;
 use App\Models\Earning;
 use App\Models\EarningPeriod;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Illuminate\Validation\Rule;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -80,7 +82,16 @@ class ClientResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Client Name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('user.email')
-                    ->label('Email')->searchable(),
+                    ->label('Email')->searchable()
+                    ->placeholder('No user linked'),
+                Tables\Columns\IconColumn::make('user_id')
+                    ->label('User')
+                    ->boolean()
+                    ->getStateUsing(fn (Client $record) => (bool) $record->user_id)
+                    ->trueIcon('heroicon-o-link')
+                    ->falseIcon('heroicon-o-link-slash')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 Tables\Columns\TextColumn::make('phone'),
                 Tables\Columns\TextColumn::make('current_storing_machines')
                     ->label('Storing'),
@@ -90,6 +101,16 @@ class ClientResource extends Resource
             ])
             ->filters([])
             ->actions([
+                Tables\Actions\Action::make('manage_user')
+                    ->label(fn (Client $record) => $record->user_id ? 'Manage User' : 'Link User')
+                    ->icon(fn (Client $record) => $record->user_id ? 'heroicon-o-user-circle' : 'heroicon-o-link')
+                    ->color(fn (Client $record) => $record->user_id ? 'gray' : 'warning')
+                    ->button()
+                    ->size('sm')
+                    ->modalHeading(fn (Client $record) => $record->user_id ? 'Manage Linked User' : 'Link User Account')
+                    ->form(fn (Client $record): array => static::userAccountFormSchema($record))
+                    ->action(fn (Client $record, array $data) => static::saveUserAccount($record, $data)),
+
                 Tables\Actions\Action::make('add_earning')
                     ->label('Add Earning')
                     ->icon('heroicon-m-plus-circle')
@@ -166,10 +187,10 @@ class ClientResource extends Resource
                     ->color('info')
                     ->button()
                     ->size('sm')
-                    ->visible(fn (Client $record) => $record->welcome_sent_at === null)
+                    ->visible(fn (Client $record) => $record->user_id && $record->welcome_sent_at === null)
                     ->requiresConfirmation()
                     ->modalHeading('Send Welcome Email')
-                    ->modalDescription(fn (Client $record) => 'This will generate a new password for ' . $record->user->name . ' and send their login credentials by email. Continue?')
+                    ->modalDescription(fn (Client $record) => 'This will generate a new password for ' . ($record->user?->name ?? 'the client') . ' and send their login credentials by email. Continue?')
                     ->modalSubmitActionLabel('Yes, send it')
                     ->action(function (Client $record): void {
                         $plainPassword = Str::password(12, symbols: false);
@@ -191,6 +212,114 @@ class ClientResource extends Resource
                     ->failureNotificationTitle('Failed to send email — check mail configuration.')
                     ->after(fn () => null),
             ]);
+    }
+
+    /**
+     * @return array<int, \Filament\Forms\Components\Component>
+     */
+    public static function userAccountFormSchema(Client $record): array
+    {
+        if ($record->user_id) {
+            return [
+                Forms\Components\TextInput::make('user_name')
+                    ->label('Full Name')
+                    ->default($record->user?->name)
+                    ->required(),
+                Forms\Components\TextInput::make('user_email')
+                    ->label('Email')
+                    ->email()
+                    ->default($record->user?->email)
+                    ->required()
+                    ->rules([
+                        'required',
+                        'email',
+                        Rule::unique('users', 'email')->ignore($record->user_id),
+                    ]),
+                Forms\Components\TextInput::make('user_password')
+                    ->label('New Password')
+                    ->password()
+                    ->helperText('Leave blank to keep the current password.'),
+            ];
+        }
+
+        return [
+            Forms\Components\Toggle::make('create_new_user')
+                ->label('Create a new user account')
+                ->default(true)
+                ->live(),
+
+            Forms\Components\Select::make('user_id')
+                ->label('Link Existing User')
+                ->options(fn () => User::staff()->orderBy('name')->pluck('name', 'id'))
+                ->searchable()
+                ->required(fn (Get $get) => ! $get('create_new_user'))
+                ->visible(fn (Get $get) => ! $get('create_new_user')),
+
+            Forms\Components\TextInput::make('user_name')
+                ->label('Full Name')
+                ->required(fn (Get $get) => (bool) $get('create_new_user'))
+                ->visible(fn (Get $get) => (bool) $get('create_new_user')),
+
+            Forms\Components\TextInput::make('user_email')
+                ->label('Email')
+                ->email()
+                ->required(fn (Get $get) => (bool) $get('create_new_user'))
+                ->visible(fn (Get $get) => (bool) $get('create_new_user'))
+                ->rules(fn (Get $get) => ($get('create_new_user') ? ['required', 'email', Rule::unique('users', 'email')] : [])),
+
+            Forms\Components\TextInput::make('user_password')
+                ->label('Password')
+                ->password()
+                ->required(fn (Get $get) => (bool) $get('create_new_user'))
+                ->visible(fn (Get $get) => (bool) $get('create_new_user')),
+        ];
+    }
+
+    public static function saveUserAccount(Client $record, array $data): void
+    {
+        if ($record->user_id) {
+            $updates = [
+                'name' => $data['user_name'],
+                'email' => $data['user_email'],
+            ];
+
+            if (! empty($data['user_password'])) {
+                $updates['password'] = Hash::make($data['user_password']);
+            }
+
+            $record->user?->update($updates);
+
+            Notification::make()
+                ->title('User account updated.')
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        if ($data['create_new_user'] ?? true) {
+            $user = User::create([
+                'name' => $data['user_name'],
+                'email' => $data['user_email'],
+                'password' => Hash::make($data['user_password']),
+            ]);
+
+            $record->update(['user_id' => $user->id]);
+
+            Notification::make()
+                ->title('New user created and linked.')
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        $record->update(['user_id' => $data['user_id']]);
+
+        Notification::make()
+            ->title('User linked successfully.')
+            ->success()
+            ->send();
     }
 
     public static function getRelations(): array
