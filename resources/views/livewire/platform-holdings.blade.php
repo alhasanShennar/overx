@@ -354,6 +354,141 @@
 
     </div>
 
+    {{-- ── REVENUE ANALYTICS ─────────────────────────────────────────── --}}
+    <div class="space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Revenue Analytics</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    Track mining revenue, BTC production, and client payouts across any date range.
+                </p>
+            </div>
+        </div>
+
+        {{-- Filters --}}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4">
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="flex-1 min-w-[140px] space-y-1">
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Date From</label>
+                    <input type="date" wire:model.live="dateFrom"
+                        class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700
+                               text-gray-900 dark:text-gray-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                </div>
+
+                <div class="flex-1 min-w-[140px] space-y-1">
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Date To</label>
+                    <input type="date" wire:model.live="dateTo"
+                        class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700
+                               text-gray-900 dark:text-gray-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                </div>
+
+                <div class="flex-1 min-w-[160px] space-y-1">
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Grouping</label>
+                    <select wire:model.live="groupBy"
+                        class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700
+                               text-gray-900 dark:text-gray-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="auto">Auto (smart)</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+
+                <button wire:click="resetFilters"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-600
+                           bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        {{-- KPI cards --}}
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Total Revenue</p>
+                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">${{ number_format($statTotalRevenue, 2) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">BTC Earned</p>
+                <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ number_format($statTotalBtc, 8) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Avg / Day</p>
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">${{ number_format($statAvgDailyRevenue, 2) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Cashouts</p>
+                <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">${{ number_format($statCashouts, 2) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Stored</p>
+                <p class="text-2xl font-bold text-teal-600 dark:text-teal-400 mt-1">${{ number_format($statStored, 2) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Active Clients</p>
+                <p class="text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ number_format($statActiveClients) }}</p>
+            </div>
+        </div>
+
+        {{-- Time-series charts --}}
+        <div id="platformAnalyticsCharts"
+             wire:ignore
+             data-payload="{{ $chartPayloadJson }}"
+             class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+            <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">Revenue Over Time</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Daily, weekly, or monthly revenue based on your selected range</p>
+                <div style="position:relative;height:320px;">
+                    <canvas id="chartRevenueTrend"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">Cumulative Revenue</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Running total across the selected period</p>
+                <div style="position:relative;height:280px;">
+                    <canvas id="chartCumulativeRevenue"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">BTC Earned Over Time</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Production volume by period</p>
+                <div style="position:relative;height:280px;">
+                    <canvas id="chartBtcTrend"></canvas>
+                </div>
+            </div>
+
+            <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">Cashouts vs Stored Earnings</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Compare client payouts against stored pool contributions</p>
+                <div style="position:relative;height:300px;">
+                    <canvas id="chartCashoutStored"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">Revenue by Client</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Top contributors in the selected range</p>
+                <div style="position:relative;height:300px;">
+                    <canvas id="chartClientRevenue"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                <h3 class="font-semibold text-gray-900 dark:text-white">Client Revenue Share</h3>
+                <p class="text-xs text-gray-400 mt-0.5 mb-4">Distribution of total revenue across clients</p>
+                <div style="position:relative;height:300px;">
+                    <canvas id="chartClientShare"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -361,12 +496,28 @@
 <script>
 (function () {
     var chartInstances = {};
+    var analyticsInstances = {};
+
+    var PALETTE = [
+        '#6366f1','#f59e0b','#10b981','#3b82f6','#ec4899',
+        '#14b8a6','#f97316','#8b5cf6','#84cc16','#06b6d4'
+    ];
+
+    function destroyChart(store, id) {
+        if (store[id]) {
+            store[id].destroy();
+            delete store[id];
+        }
+    }
+
+    function destroyAnalyticsCharts() {
+        Object.keys(analyticsInstances).forEach(function (id) {
+            destroyChart(analyticsInstances, id);
+        });
+    }
 
     function makeDoughnut(id, segments) {
-        if (chartInstances[id]) {
-            chartInstances[id].destroy();
-            delete chartInstances[id];
-        }
+        destroyChart(chartInstances, id);
         var el = document.getElementById(id);
         if (!el) return;
         el.width  = el.parentElement.offsetWidth;
@@ -402,7 +553,7 @@
         });
     }
 
-    function drawCharts(btcU, ethU, btcV, ethV, usdtV) {
+    function drawHoldingsCharts(btcU, ethU, btcV, ethV, usdtV) {
         makeDoughnut('chartHoldingUnits', [
             { label: 'BTC', value: btcU,  color: '#f59e0b' },
             { label: 'ETH', value: ethU,  color: '#8b5cf6' }
@@ -414,11 +565,239 @@
         ]);
     }
 
-    function init() {
+    function chartFontColor() {
+        return document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280';
+    }
+
+    function chartGridColor() {
+        return document.documentElement.classList.contains('dark')
+            ? 'rgba(75,85,99,0.35)'
+            : 'rgba(156,163,175,0.15)';
+    }
+
+    function sharedScales() {
+        return {
+            x: {
+                ticks: { color: chartFontColor(), font: { size: 11 }, maxRotation: 45, minRotation: 0 },
+                grid: { display: false }
+            },
+            y: {
+                ticks: { color: chartFontColor(), font: { size: 11 } },
+                grid: { color: chartGridColor() },
+                beginAtZero: true
+            }
+        };
+    }
+
+    function moneyTooltip(label) {
+        return {
+            callbacks: {
+                label: function(ctx) {
+                    var value = ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed;
+                    return ' ' + (ctx.dataset.label || label) + ': $' + Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            }
+        };
+    }
+
+    function drawAnalyticsCharts() {
+        var wrapper = document.getElementById('platformAnalyticsCharts');
+        if (!wrapper) return;
+
+        destroyAnalyticsCharts();
+
+        var payload;
+        try {
+            payload = JSON.parse(wrapper.dataset.payload || '{}');
+        } catch (e) {
+            return;
+        }
+
+        var labels = payload.labels || [];
+        var clients = payload.clients || [];
+        var clientNames = clients.map(function (c) { return c.name; });
+        var clientRevenues = clients.map(function (c) { return c.revenue; });
+        var clientColors = clients.map(function (_, i) { return PALETTE[i % PALETTE.length]; });
+        var scales = sharedScales();
+
+        analyticsInstances.chartRevenueTrend = new Chart(document.getElementById('chartRevenueTrend'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: payload.revenue || [],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.15)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 2.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: false }, tooltip: moneyTooltip('Revenue') },
+                scales: scales
+            }
+        });
+
+        analyticsInstances.chartCumulativeRevenue = new Chart(document.getElementById('chartCumulativeRevenue'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cumulative ($)',
+                    data: payload.cumulative || [],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    borderWidth: 2.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: moneyTooltip('Cumulative') },
+                scales: scales
+            }
+        });
+
+        analyticsInstances.chartBtcTrend = new Chart(document.getElementById('chartBtcTrend'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'BTC Earned',
+                    data: payload.btc || [],
+                    backgroundColor: 'rgba(245,158,11,0.85)',
+                    borderColor: '#f59e0b',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ' BTC: ' + Number(ctx.parsed.y).toFixed(8);
+                            }
+                        }
+                    }
+                },
+                scales: scales
+            }
+        });
+
+        analyticsInstances.chartCashoutStored = new Chart(document.getElementById('chartCashoutStored'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Cashouts ($)',
+                        data: payload.cashouts || [],
+                        backgroundColor: 'rgba(239,68,68,0.8)',
+                        borderColor: '#ef4444',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Stored ($)',
+                        data: payload.stored || [],
+                        backgroundColor: 'rgba(20,184,166,0.8)',
+                        borderColor: '#14b8a6',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top', labels: { color: chartFontColor(), boxWidth: 12 } },
+                    tooltip: moneyTooltip('')
+                },
+                scales: scales
+            }
+        });
+
+        analyticsInstances.chartClientRevenue = new Chart(document.getElementById('chartClientRevenue'), {
+            type: 'bar',
+            data: {
+                labels: clientNames,
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: clientRevenues,
+                    backgroundColor: clientColors,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: moneyTooltip('Revenue') },
+                scales: {
+                    x: { ticks: { color: chartFontColor() }, grid: { color: chartGridColor() }, beginAtZero: true },
+                    y: { ticks: { color: chartFontColor() }, grid: { display: false } }
+                }
+            }
+        });
+
+        analyticsInstances.chartClientShare = new Chart(document.getElementById('chartClientShare'), {
+            type: 'doughnut',
+            data: {
+                labels: clientNames,
+                datasets: [{
+                    data: clientRevenues.length ? clientRevenues : [1],
+                    backgroundColor: clientColors.length ? clientColors : ['#d1d5db'],
+                    borderWidth: 2,
+                    borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '58%',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right',
+                        labels: { color: chartFontColor(), font: { size: 11 }, padding: 10 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+                                var pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0';
+                                return ' ' + ctx.label + ': $' + Number(ctx.parsed).toLocaleString() + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function initHoldingsCharts() {
         var u = document.getElementById('chartHoldingUnits');
         var v = document.getElementById('chartHoldingValue');
         if (u && v) {
-            drawCharts(
+            drawHoldingsCharts(
                 parseFloat(u.dataset.btc  || 0), parseFloat(u.dataset.eth || 0),
                 parseFloat(v.dataset.btc  || 0), parseFloat(v.dataset.eth || 0),
                 parseFloat(v.dataset.usdt || 0)
@@ -426,9 +805,25 @@
         }
     }
 
+    function initAll() {
+        initHoldingsCharts();
+        drawAnalyticsCharts();
+    }
+
     document.readyState === 'loading'
-        ? document.addEventListener('DOMContentLoaded', init)
-        : init();
+        ? document.addEventListener('DOMContentLoaded', initAll)
+        : initAll();
+
+    document.addEventListener('livewire:init', function () {
+        Livewire.on('platform-analytics-updated', function (event) {
+            var payload = event.payload || event.detail?.payload || event[0]?.payload;
+            var wrapper = document.getElementById('platformAnalyticsCharts');
+            if (wrapper && payload) {
+                wrapper.dataset.payload = JSON.stringify(payload);
+            }
+            drawAnalyticsCharts();
+        });
+    });
 })();
 </script>
 @endpush

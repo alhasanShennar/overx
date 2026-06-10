@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\PlatformHolding;
+use App\Services\PlatformAnalyticsService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
@@ -11,20 +12,60 @@ class PlatformHoldings extends Component
 {
     public bool $isEditing = false;
 
-    public string $btcUnit     = '0';
-    public string $ethUnit     = '0';
-    public string $usdtValue   = '0';
+    public string $btcUnit = '0';
+    public string $ethUnit = '0';
+    public string $usdtValue = '0';
     public string $lastUpdated = 'Never';
 
     public float $btcMarketPrice = 0;
     public float $ethMarketPrice = 0;
-    public bool  $pricesLoaded  = false;
+    public bool $pricesLoaded = false;
+
+    public string $dateFrom = '';
+    public string $dateTo = '';
+    public string $groupBy = 'auto';
+
+    public float $statTotalRevenue = 0;
+    public float $statTotalBtc = 0;
+    public float $statAvgDailyRevenue = 0;
+    public float $statCashouts = 0;
+    public float $statStored = 0;
+    public int $statActiveClients = 0;
+
+    public string $chartPayloadJson = '{}';
 
     public function mount(): void
     {
         $record = PlatformHolding::instance();
         $this->fillFromRecord($record);
         $this->fetchMarketPrices();
+
+        if ($this->dateFrom === '') {
+            $this->dateFrom = now()->subMonths(6)->toDateString();
+        }
+
+        if ($this->dateTo === '') {
+            $this->dateTo = now()->toDateString();
+        }
+
+        $this->loadAnalytics();
+    }
+
+    public function updated($property): void
+    {
+        if (in_array($property, ['dateFrom', 'dateTo', 'groupBy'], true)) {
+            $this->loadAnalytics();
+            $this->dispatch('platform-analytics-updated', payload: json_decode($this->chartPayloadJson, true));
+        }
+    }
+
+    public function resetFilters(): void
+    {
+        $this->dateFrom = now()->subMonths(6)->toDateString();
+        $this->dateTo = now()->toDateString();
+        $this->groupBy = 'auto';
+        $this->loadAnalytics();
+        $this->dispatch('platform-analytics-updated', payload: json_decode($this->chartPayloadJson, true));
     }
 
     public function refreshPrices(): void
@@ -39,17 +80,39 @@ class PlatformHoldings extends Component
             $prices = Cache::remember('coingecko_prices', 300, function () {
                 return Http::timeout(6)
                     ->get('https://api.coingecko.com/api/v3/simple/price', [
-                        'ids'           => 'bitcoin,ethereum',
+                        'ids' => 'bitcoin,ethereum',
                         'vs_currencies' => 'usd',
                     ])->json();
             });
 
             $this->btcMarketPrice = (float) ($prices['bitcoin']['usd'] ?? 0);
             $this->ethMarketPrice = (float) ($prices['ethereum']['usd'] ?? 0);
-            $this->pricesLoaded   = true;
+            $this->pricesLoaded = true;
         } catch (\Throwable) {
             $this->pricesLoaded = false;
         }
+    }
+
+    private function loadAnalytics(): void
+    {
+        $service = app(PlatformAnalyticsService::class);
+        [$from, $to] = $service->resolveRange($this->dateFrom, $this->dateTo);
+
+        $groupBy = $this->groupBy === 'auto'
+            ? $service->suggestGroupBy($from, $to)
+            : $this->groupBy;
+
+        $summary = $service->summary($from, $to);
+        $this->statTotalRevenue = $summary['total_revenue'];
+        $this->statTotalBtc = $summary['total_btc'];
+        $this->statAvgDailyRevenue = $summary['avg_daily_revenue'];
+        $this->statCashouts = $summary['cashouts'];
+        $this->statStored = $summary['stored'];
+        $this->statActiveClients = $summary['active_clients'];
+
+        $this->chartPayloadJson = json_encode(
+            $service->buildChartPayload($from, $to, $groupBy)
+        );
     }
 
     public function edit(): void
@@ -60,17 +123,17 @@ class PlatformHoldings extends Component
     public function save(): void
     {
         $validated = $this->validate([
-            'btcUnit'   => 'required|numeric|min:0',
-            'ethUnit'   => 'required|numeric|min:0',
+            'btcUnit' => 'required|numeric|min:0',
+            'ethUnit' => 'required|numeric|min:0',
             'usdtValue' => 'required|numeric|min:0',
         ]);
 
         $record = PlatformHolding::instance();
         $record->update([
-            'btc_unit'   => $validated['btcUnit'],
-            'btc_value'  => (float) $validated['btcUnit'] * $this->btcMarketPrice,
-            'eth_unit'   => $validated['ethUnit'],
-            'eth_value'  => (float) $validated['ethUnit'] * $this->ethMarketPrice,
+            'btc_unit' => $validated['btcUnit'],
+            'btc_value' => (float) $validated['btcUnit'] * $this->btcMarketPrice,
+            'eth_unit' => $validated['ethUnit'],
+            'eth_value' => (float) $validated['ethUnit'] * $this->ethMarketPrice,
             'usdt_value' => $validated['usdtValue'],
         ]);
 
@@ -86,9 +149,9 @@ class PlatformHoldings extends Component
 
     private function fillFromRecord(PlatformHolding $record): void
     {
-        $this->btcUnit     = (string) $record->btc_unit;
-        $this->ethUnit     = (string) $record->eth_unit;
-        $this->usdtValue   = (string) $record->usdt_value;
+        $this->btcUnit = (string) $record->btc_unit;
+        $this->ethUnit = (string) $record->eth_unit;
+        $this->usdtValue = (string) $record->usdt_value;
         $this->lastUpdated = $record->updated_at?->diffForHumans() ?? 'Never';
     }
 
