@@ -25,6 +25,23 @@ class Client extends Model
         return $this->hasMany(Contract::class);
     }
 
+    public function tradingContracts(): HasMany
+    {
+        return $this->hasMany(TradingContract::class);
+    }
+
+    public function activeTradingContracts(): HasMany
+    {
+        return $this->hasMany(TradingContract::class)
+            ->where(fn ($q) => $q->whereNull('end_date')->orWhere('end_date', '>=', today()))
+            ->orderBy('start_date');
+    }
+
+    public function tradingEarnings(): HasMany
+    {
+        return $this->hasMany(TradingEarning::class);
+    }
+
     public function activeContracts(): HasMany
     {
         return $this->hasMany(Contract::class)

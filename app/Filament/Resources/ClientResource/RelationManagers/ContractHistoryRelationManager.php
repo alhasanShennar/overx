@@ -11,7 +11,9 @@ class ContractHistoryRelationManager extends RelationManager
 {
     protected static string $relationship = 'contracts';
 
-    protected static ?string $title = 'Contract History';
+    protected static ?string $title = 'Mining Contract History';
+
+    protected static ?string $icon = 'heroicon-o-archive-box';
 
     public function isReadOnly(): bool
     {

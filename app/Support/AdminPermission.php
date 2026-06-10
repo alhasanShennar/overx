@@ -26,6 +26,10 @@ class AdminPermission
 
     public const VIEW_CURRENCIES = 'view_currencies';
 
+    public const VIEW_TRADING_CONTRACTS = 'view_trading_contracts';
+
+    public const VIEW_TRADING_EARNINGS = 'view_trading_earnings';
+
     /**
      * @return array<string, string>
      */
@@ -43,6 +47,8 @@ class AdminPermission
             self::VIEW_SERVICES => 'Services',
             self::VIEW_CONTACT_MESSAGES => 'Contact Messages',
             self::VIEW_CURRENCIES => 'Currencies',
+            self::VIEW_TRADING_CONTRACTS => 'Trading Contracts',
+            self::VIEW_TRADING_EARNINGS => 'Trading Earnings',
         ];
     }
 
@@ -69,6 +75,10 @@ class AdminPermission
             'Content' => [
                 self::VIEW_SERVICES => self::labels()[self::VIEW_SERVICES],
                 self::VIEW_CONTACT_MESSAGES => self::labels()[self::VIEW_CONTACT_MESSAGES],
+            ],
+            'Trading' => [
+                self::VIEW_TRADING_CONTRACTS => self::labels()[self::VIEW_TRADING_CONTRACTS],
+                self::VIEW_TRADING_EARNINGS => self::labels()[self::VIEW_TRADING_EARNINGS],
             ],
             'Settings' => [
                 self::VIEW_CURRENCIES => self::labels()[self::VIEW_CURRENCIES],

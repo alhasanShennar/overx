@@ -16,6 +16,10 @@ class ContractsRelationManager extends RelationManager
 {
     protected static string $relationship = 'contracts';
 
+    protected static ?string $title = 'Mining Contracts';
+
+    protected static ?string $icon = 'heroicon-o-cpu-chip';
+
     public function form(Form $form): Form
     {
         return $form->schema([
