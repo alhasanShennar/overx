@@ -405,31 +405,78 @@
             </div>
         </div>
 
-        {{-- KPI cards --}}
-        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Total Revenue</p>
-                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">${{ number_format($statTotalRevenue, 2) }}</p>
+        {{-- KPI stats — Filament-style, single row --}}
+        <div class="fi-wi-stats-overview-stats-ctn grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="fi-wi-stats-overview-stat relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="grid gap-y-2 min-w-0">
+                        <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</span>
+                        <div class="fi-wi-stats-overview-stat-value text-3xl font-semibold tracking-tight text-gray-950 dark:text-white truncate">
+                            ${{ number_format($statTotalRevenue, 2) }}
+                        </div>
+                        <span class="fi-wi-stats-overview-stat-description text-sm text-emerald-600 dark:text-emerald-400">
+                            {{ $statEarningEntries }} {{ $statEarningEntries === 1 ? 'entry' : 'entries' }} in range
+                        </span>
+                    </div>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <x-filament::icon icon="heroicon-o-currency-dollar" class="h-6 w-6" />
+                    </div>
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">BTC Earned</p>
-                <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ number_format($statTotalBtc, 8) }}</p>
+
+            <div class="fi-wi-stats-overview-stat relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="grid gap-y-2 min-w-0">
+                        <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400">BTC Earned</span>
+                        <div class="fi-wi-stats-overview-stat-value text-3xl font-semibold tracking-tight text-gray-950 dark:text-white truncate">
+                            {{ number_format($statTotalBtc, 8) }}
+                        </div>
+                        <span class="fi-wi-stats-overview-stat-description text-sm text-amber-600 dark:text-amber-400">
+                            Mining production volume
+                        </span>
+                    </div>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <x-filament::icon icon="heroicon-o-bolt" class="h-6 w-6" />
+                    </div>
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Avg / Day</p>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">${{ number_format($statAvgDailyRevenue, 2) }}</p>
+
+            <div class="fi-wi-stats-overview-stat relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-400 to-purple-600"></div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="grid gap-y-2 min-w-0">
+                        <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400">Active Clients</span>
+                        <div class="fi-wi-stats-overview-stat-value text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
+                            {{ number_format($statActiveClients) }}
+                        </div>
+                        <span class="fi-wi-stats-overview-stat-description text-sm text-violet-600 dark:text-violet-400">
+                            Clients with earnings in range
+                        </span>
+                    </div>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                        <x-filament::icon icon="heroicon-o-user-group" class="h-6 w-6" />
+                    </div>
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Cashouts</p>
-                <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">${{ number_format($statCashouts, 2) }}</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Stored</p>
-                <p class="text-2xl font-bold text-teal-600 dark:text-teal-400 mt-1">${{ number_format($statStored, 2) }}</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Active Clients</p>
-                <p class="text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ number_format($statActiveClients) }}</p>
+
+            <div class="fi-wi-stats-overview-stat relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 to-primary-600"></div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="grid gap-y-2 min-w-0">
+                        <span class="fi-wi-stats-overview-stat-label text-sm font-medium text-gray-500 dark:text-gray-400">Avg / Day</span>
+                        <div class="fi-wi-stats-overview-stat-value text-3xl font-semibold tracking-tight text-gray-950 dark:text-white truncate">
+                            ${{ number_format($statAvgDailyRevenue, 2) }}
+                        </div>
+                        <span class="fi-wi-stats-overview-stat-description text-sm text-blue-600 dark:text-blue-400">
+                            Mean daily revenue in period
+                        </span>
+                    </div>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <x-filament::icon icon="heroicon-o-chart-bar-square" class="h-6 w-6" />
+                    </div>
+                </div>
             </div>
         </div>
 

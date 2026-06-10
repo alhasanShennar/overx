@@ -28,9 +28,8 @@ class PlatformHoldings extends Component
     public float $statTotalRevenue = 0;
     public float $statTotalBtc = 0;
     public float $statAvgDailyRevenue = 0;
-    public float $statCashouts = 0;
-    public float $statStored = 0;
     public int $statActiveClients = 0;
+    public int $statEarningEntries = 0;
 
     public string $chartPayloadJson = '{}';
 
@@ -106,9 +105,8 @@ class PlatformHoldings extends Component
         $this->statTotalRevenue = $summary['total_revenue'];
         $this->statTotalBtc = $summary['total_btc'];
         $this->statAvgDailyRevenue = $summary['avg_daily_revenue'];
-        $this->statCashouts = $summary['cashouts'];
-        $this->statStored = $summary['stored'];
         $this->statActiveClients = $summary['active_clients'];
+        $this->statEarningEntries = $summary['earning_entries'];
 
         $this->chartPayloadJson = json_encode(
             $service->buildChartPayload($from, $to, $groupBy)
