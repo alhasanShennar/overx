@@ -330,6 +330,7 @@ class ClientResource extends Resource
             RelationManagers\TradingContractsRelationManager::class,
             RelationManagers\TradingContractHistoryRelationManager::class,
             RelationManagers\TradingEarningsRelationManager::class,
+            RelationManagers\TradingPeriodsRelationManager::class,
             RelationManagers\EarningPeriodsRelationManager::class,
             RelationManagers\EarningsRelationManager::class,
             RelationManagers\TransactionsRelationManager::class,

@@ -10,6 +10,7 @@ class TradingEarning extends Model
     protected $fillable = [
         'client_id',
         'trading_contract_id',
+        'trading_period_id',
         'date',
         'amount',
         'notes',
@@ -22,12 +23,31 @@ class TradingEarning extends Model
 
     protected static function booted(): void
     {
-        $sync = function (TradingEarning $earning): void {
+        static::saving(function (TradingEarning $earning) {
+            if (! $earning->trading_contract_id || ! $earning->date) {
+                return;
+            }
+
+            $contract = $earning->tradingContract ?? TradingContract::find($earning->trading_contract_id);
+
+            if (! $contract) {
+                return;
+            }
+
+            $period = app(\App\Services\TradingPeriodService::class)
+                ->getOrCreateMonthlyPeriod($contract, $earning->date);
+
+            $earning->trading_period_id = $period->id;
+        });
+
+        $afterChange = function (TradingEarning $earning): void {
+            $earning->tradingPeriod?->recalculateTotals();
+            $earning->tradingPeriod?->maybeMarkCompleted();
             $earning->tradingContract?->recalculateEarning();
         };
 
-        static::saved($sync);
-        static::deleted($sync);
+        static::saved($afterChange);
+        static::deleted($afterChange);
     }
 
     public function client(): BelongsTo
@@ -38,5 +58,10 @@ class TradingEarning extends Model
     public function tradingContract(): BelongsTo
     {
         return $this->belongsTo(TradingContract::class);
+    }
+
+    public function tradingPeriod(): BelongsTo
+    {
+        return $this->belongsTo(TradingPeriod::class);
     }
 }

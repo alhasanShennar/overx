@@ -42,6 +42,31 @@ class Client extends Model
         return $this->hasMany(TradingEarning::class);
     }
 
+    public function tradingPeriods(): HasMany
+    {
+        return $this->hasMany(TradingPeriod::class);
+    }
+
+    public function tradingTransactions(): HasMany
+    {
+        return $this->hasMany(TradingTransaction::class);
+    }
+
+    public function tradingCashouts(): HasMany
+    {
+        return $this->hasMany(TradingCashout::class);
+    }
+
+    public function tradingStoredEarnings(): HasMany
+    {
+        return $this->hasMany(TradingStoredEarning::class);
+    }
+
+    public function getTradingStoredBalanceAttribute(): float
+    {
+        return (float) $this->tradingStoredEarnings()->sum('amount');
+    }
+
     public function activeContracts(): HasMany
     {
         return $this->hasMany(Contract::class)

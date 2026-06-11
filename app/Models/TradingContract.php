@@ -35,6 +35,11 @@ class TradingContract extends Model
         return $this->hasMany(TradingEarning::class);
     }
 
+    public function tradingPeriods(): HasMany
+    {
+        return $this->hasMany(TradingPeriod::class);
+    }
+
     public function isActive(): bool
     {
         return $this->end_date === null || $this->end_date->greaterThanOrEqualTo(today());

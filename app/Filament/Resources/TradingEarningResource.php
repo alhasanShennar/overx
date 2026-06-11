@@ -29,6 +29,10 @@ class TradingEarningResource extends Resource
 
     protected static ?string $navigationLabel = 'Trading Earnings';
 
+    protected static ?string $modelLabel = 'Trading Earning';
+
+    protected static ?string $pluralModelLabel = 'Trading Earnings';
+
     protected static function adminPermission(): ?string
     {
         return AdminPermission::VIEW_TRADING_EARNINGS;

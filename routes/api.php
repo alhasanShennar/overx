@@ -9,6 +9,11 @@ use App\Http\Controllers\Api\Client\EarningController;
 use App\Http\Controllers\Api\Client\EarningPeriodController;
 use App\Http\Controllers\Api\Client\ProfileController;
 use App\Http\Controllers\Api\Client\StoredEarningController;
+use App\Http\Controllers\Api\Client\TradingCashoutController;
+use App\Http\Controllers\Api\Client\TradingContractController;
+use App\Http\Controllers\Api\Client\TradingEarningController;
+use App\Http\Controllers\Api\Client\TradingPeriodController;
+use App\Http\Controllers\Api\Client\TradingStoredEarningController;
 use App\Http\Controllers\Api\Client\TransactionController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ServiceController;
@@ -60,6 +65,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/transactions', [TransactionController::class, 'index']);
         Route::get('/cashouts', [CashoutController::class, 'index']);
         Route::get('/stored-earnings', [StoredEarningController::class, 'index']);
+
+        // Trading module (separate from mining)
+        Route::get('/trading-contracts', [TradingContractController::class, 'index']);
+        Route::get('/trading-contracts/{trading_contract}', [TradingContractController::class, 'show']);
+        Route::get('/trading-earnings', [TradingEarningController::class, 'index']);
+        Route::get('/trading-periods/pending', [TradingPeriodController::class, 'pending']);
+        Route::get('/trading-periods/chart', [TradingPeriodController::class, 'chart']);
+        Route::get('/trading-periods', [TradingPeriodController::class, 'index']);
+        Route::get('/trading-periods/{trading_period}', [TradingPeriodController::class, 'show']);
+        Route::post('/trading-periods/{trading_period}/request-cashout', [TradingPeriodController::class, 'requestCashout']);
+        Route::post('/trading-periods/{trading_period}/request-store', [TradingPeriodController::class, 'requestStore']);
+        Route::get('/trading-cashouts', [TradingCashoutController::class, 'index']);
+        Route::get('/trading-stored-earnings', [TradingStoredEarningController::class, 'index']);
+        Route::get('/trading-stored-balance', [TradingStoredEarningController::class, 'balance']);
 
         // Cashout details management
         Route::get('/cashout-details', [CashoutDetailController::class, 'index']);

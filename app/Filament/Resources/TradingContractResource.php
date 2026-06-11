@@ -27,6 +27,8 @@ class TradingContractResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'id';
+
     protected static ?string $navigationLabel = 'Trading Contracts';
 
     protected static function adminPermission(): ?string
